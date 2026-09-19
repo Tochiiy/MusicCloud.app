@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/concurrently": "^6.4.0",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/nodemon": "^1.19.6"
+  }
+}

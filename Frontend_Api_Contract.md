@@ -1,0 +1,398 @@
+# Frontend API Contract
+
+This file describes the real request and response contract used by the current backend services.
+
+## Required frontend packages
+
+Install these in the frontend app:
+
+```bash
+npm install axios
+```
+
+Optional if using FormData uploads:
+
+```bash
+npm install form-data
+```
+
+## Base URLs
+
+- Song service: http://localhost:8000/api/v1
+- Admin service: http://localhost:7000/api/v1/admin
+- User service: http://localhost:6000/api/v1
+
+## Auth header
+
+Use this header for protected admin and user routes:
+
+```http
+Authorization: Bearer <token>
+```
+
+# Song Service Endpoints
+
+## 1) GET /songs
+
+Fetch all songs.
+
+### Response example
+
+```json
+{
+  "message": "Songs fetched successfully",
+  "status": "Success",
+  "songs": [
+    {
+      "id": 1,
+      "title": "E2E Song",
+      "description": "audio test",
+      "thumbnail": "https://res.cloudinary.com/.../thumbnails/....png",
+      "audio": "https://res.cloudinary.com/.../songs/...wav",
+      "album_id": 1,
+      "created_at": "2026-09-18T23:39:42.501Z",
+      "thumbnail_public_id": null,
+      "audio_public_id": null
+    }
+  ]
+}
+```
+
+## 2) GET /albums
+
+Fetch all albums.
+
+### Response example
+
+```json
+{
+  "message": "Albums fetched successfully",
+  "status": "Success",
+  "albums": [
+    {
+      "id": 1,
+      "title": "E2E Album 053928",
+      "description": "created by e2e",
+      "thumbnail": "https://res.cloudinary.com/.../albums/...png",
+      "created_at": "2026-09-18T23:39:31.068Z",
+      "thumbnail_public_id": null
+    }
+  ]
+}
+```
+
+## 3) GET /albums/:albumId/songs
+
+Fetch all songs for a specific album.
+
+### Path params
+
+- albumId: number
+
+### Response example
+
+```json
+{
+  "message": "Songs fetched successfully",
+  "status": "Success",
+  "songs": [
+    {
+      "id": 1,
+      "title": "E2E Song",
+      "description": "audio test",
+      "thumbnail": "https://res.cloudinary.com/...",
+      "audio": "https://res.cloudinary.com/...",
+      "album_id": 1,
+      "created_at": "2026-09-18T23:39:42.501Z",
+      "thumbnail_public_id": null,
+      "audio_public_id": null
+    }
+  ]
+}
+```
+
+## 4) GET /songs/:songId
+
+Fetch a single song by id.
+
+### Path params
+
+- songId: number
+
+### Response example
+
+```json
+{
+  "message": "Song fetched successfully",
+  "status": "Success",
+  "song": {
+    "id": 1,
+    "title": "E2E Song",
+    "description": "audio test",
+    "thumbnail": "https://res.cloudinary.com/...",
+    "audio": "https://res.cloudinary.com/...",
+    "album_id": 1,
+    "created_at": "2026-09-18T23:39:42.501Z",
+    "thumbnail_public_id": null,
+    "audio_public_id": null
+  }
+}
+```
+
+# Admin Service Endpoints
+
+All admin endpoints require login + admin role.
+
+## 5) POST /album/new
+
+Create a new album.
+
+### Headers
+
+```http
+Authorization: Bearer <token>
+```
+
+### Request type
+
+multipart/form-data
+
+### Fields
+
+- file: image file
+- title: string
+- description: string
+
+### Response example
+
+```json
+{
+  "message": "Album added successfully",
+  "status": "Success",
+  "album": {
+    "id": 1,
+    "title": "My Album",
+    "description": "Album description",
+    "thumbnail": "https://res.cloudinary.com/...",
+    "thumbnail_public_id": "...",
+    "created_at": "2026-09-18T00:00:00.000Z"
+  }
+}
+```
+
+## 6) POST /song/new
+
+Create a new song.
+
+### Headers
+
+```http
+Authorization: Bearer <token>
+```
+
+### Request type
+
+multipart/form-data
+
+### Fields
+
+- file: audio file
+- title: string
+- description: string
+- album: number
+
+### Response example
+
+```json
+{
+  "message": "Song added successfully",
+  "status": "Success",
+  "song": {
+    "id": 1,
+    "title": "My Song",
+    "description": "Song description",
+    "thumbnail": "https://res.cloudinary.com/...",
+    "audio": "https://res.cloudinary.com/...",
+    "album_id": 1,
+    "created_at": "2026-09-18T00:00:00.000Z",
+    "thumbnail_public_id": null,
+    "audio_public_id": "..."
+  }
+}
+```
+
+## 7) POST /song/thumbnail/:songId
+
+Upload a new thumbnail for a song.
+
+### Headers
+
+```http
+Authorization: Bearer <token>
+```
+
+### Path params
+
+- songId: number
+
+### Request type
+
+multipart/form-data
+
+### Fields
+
+- file: image file
+
+### Response example
+
+```json
+{
+  "message": "Thumbnail uploaded successfully",
+  "status": "Success",
+  "thumbnailUrl": "https://res.cloudinary.com/..."
+}
+```
+
+## 8) DELETE /album/:albumId
+
+Delete an album and all associated uploaded files.
+
+### Headers
+
+```http
+Authorization: Bearer <token>
+```
+
+### Path params
+
+- albumId: number
+
+### Response example
+
+```json
+{
+  "message": "Album deleted successfully",
+  "status": "Success"
+}
+```
+
+## 9) DELETE /song/:songId
+
+Delete a song and all associated uploaded files.
+
+### Headers
+
+```http
+Authorization: Bearer <token>
+```
+
+### Path params
+
+- songId: number
+
+### Response example
+
+```json
+{
+  "message": "Song deleted successfully",
+  "status": "Success"
+}
+```
+
+# User Service Endpoints
+
+## 10) POST /user/register
+
+Register a user.
+
+### Request body
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "securePassword123"
+}
+```
+
+### Response example
+
+```json
+{
+  "message": "User registered successfully",
+  "status": "Success",
+  "token": "<jwt>",
+  "user": {
+    "_id": "...",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "user",
+    "playlist": []
+  }
+}
+```
+
+## 11) POST /user/login
+
+Login a user.
+
+### Request body
+
+```json
+{
+  "email": "john@example.com",
+  "password": "securePassword123"
+}
+```
+
+### Response example
+
+```json
+{
+  "message": "User logged in successfully",
+  "status": "Success",
+  "token": "<jwt>",
+  "user": {
+    "_id": "...",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "user",
+    "playlist": []
+  }
+}
+```
+
+## 12) GET /user/profile
+
+Fetch the current logged-in user profile.
+
+### Headers
+
+```http
+Authorization: Bearer <token>
+```
+
+### Response example
+
+```json
+{
+  "message": "User profile retrieved successfully",
+  "status": "Success",
+  "user": {
+    "_id": "...",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "user",
+    "playlist": []
+  }
+}
+```
+
+# Frontend integration notes
+
+- Song read endpoints are live and working.
+- All services now allow browser requests through CORS.
+- Admin write routes require a valid JWT and admin role.
+- File upload endpoints must use multipart/form-data.
+- Song and album responses already contain the exact fields needed by a music frontend.
+- The backend returns Cloudinary URLs directly, so the frontend can render media without extra processing.
