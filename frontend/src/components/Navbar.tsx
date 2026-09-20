@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "../context/userContext";
+import Logo from "./Logo";
 
 
 
@@ -18,6 +19,10 @@ const Navbar = () => {
   
   <div className="w-full flex justify-between items-center font-semi-bold">
     <div className="flex items-center gap-2">
+      <button type="button" aria-label="Go to MusicCloud home" className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
+        <Logo className="h-9 w-auto" />
+        <span className="hidden text-xl font-bold text-[#EFECFF] md:block">MusicCloud</span>
+      </button>
       <img src="/left_arrow.png" alt="left arrow" className="w-6 h-6 bg-[#17142B] rounded-2xl cursor-pointer" onClick={() => navigate(-1)} />
       <img src="/right_arrow.png" alt="left arrow" className="w-6 h-6 bg-[#17142B] rounded-2xl cursor-pointer" onClick={() => navigate(+1)} />
     </div>

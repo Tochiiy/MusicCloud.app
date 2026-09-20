@@ -157,6 +157,32 @@ const paths = {
       },
     },
   },
+  '/api/v1/user/users': {
+    get: {
+      tags: ['Auth'],
+      summary: 'List all registered users (admin only)',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: {
+          description: 'Users retrieved successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string' },
+                  status: { type: 'string' },
+                  users: { type: 'array', items: userSchema },
+                },
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized' },
+        403: { description: 'Forbidden' },
+      },
+    },
+  },
   '/api/v1/user/logout': {
     post: {
       tags: ['Auth'],

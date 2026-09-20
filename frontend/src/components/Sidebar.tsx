@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import PlayListCard from "../components/PlayListCard";
+import { FiCast, FiShield } from "react-icons/fi";
+import { useUserData } from "../context/userContext";
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const { user } = useUserData();
 
   return <div className="w-[25%] h-full p-2 flex-col gap-2 text-white hidden lg:flex">
     <div className="bg-[#17142B] aspect-square h-[15%] rounded flex flex-col justify-around">
@@ -24,7 +27,7 @@ const Sidebar = () => {
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img src="/stack.png" alt="stacks" className="w-8 h-6" />
-          <span className="semi-bold">Your Library</span>
+          <span className="font-semibold">Your Library</span>
         </div>
         <div className="flex items-center gap-3">
           <img src="/arrow.png" alt="plus" className="w-6 h-6" />
@@ -40,7 +43,24 @@ const Sidebar = () => {
       <div className="p-4 m-2 bg-[#17142B] rounded font-semibold flex flex-col items-start gap-1 pl-4 mt-4">
         <h1>Follow some podcast</h1>
         <p className="font-light ">We'll keep you up to date on new podcasts and songs</p>
-        <button className="px-4 py-1.5 bg-[#EFECFF] text-[#17142B] rounded text-[15px] rounded-full mt-4">Browse Podcasts</button>
+        <button
+            type="button"
+            className="px-4 py-1.5 bg-[#EFECFF] text-[#17142B] rounded-full text-[15px] mt-4 flex items-center gap-2 cursor-pointer transition hover:bg-white"
+          >
+            <FiCast />
+            Browse Podcasts
+          </button>
+        {
+          user?.role === "admin" &&(
+          <button
+            type="button"
+            className="px-4 py-1.5 bg-[#EFECFF] text-[#17142B] rounded text-[15px] rounded-full mt-4 flex items-center gap-2 cursor-pointer transition hover:bg-white"
+            onClick={() => navigate("/admin/dashboard")}
+          >
+            <FiShield />
+            Admin Dashboard
+          </button>
+        )} 
       </div>
      </div>
     </div>

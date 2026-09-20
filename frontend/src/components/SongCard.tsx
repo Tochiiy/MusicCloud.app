@@ -53,7 +53,10 @@ const SongCard: FC<SongCardProps> = ({ image, name, description, id }) => {
         <img src={image ? image : "./download.jpeg"} alt={name} className="rounded w-[180px] mr-1" />
         <div className="flex gap-2">
           <button
-            className="absolute bottom-2 right-26 bg-[#6C5CFF] text-black p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            type="button"
+            aria-label="Play song"
+            title="Play song"
+            className="absolute bottom-2 right-26 bg-[#6C5CFF] text-black p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#17142B]"
             onClick={(e) => { e.stopPropagation(); handlePlay(); }}
           >
             <FaPlay />
@@ -61,7 +64,10 @@ const SongCard: FC<SongCardProps> = ({ image, name, description, id }) => {
 
           {isAuth && (
             <button
-              className="absolute bottom-2 right-14 bg-[#6C5CFF] text-black p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              type="button"
+              aria-label="Save to playlist"
+              title="Save to playlist"
+              className="absolute bottom-2 right-14 bg-[#6C5CFF] text-black p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#17142B]"
               onClick={(e) => { e.stopPropagation(); saveToPlaylist(); }}
             >
               <FaBookmark />
@@ -69,7 +75,10 @@ const SongCard: FC<SongCardProps> = ({ image, name, description, id }) => {
           )}
 
           <button
-            className="absolute bottom-2 right-2 bg-[#6C5CFF] text-black p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            type="button"
+            aria-label="Download song"
+            title="Download song"
+            className="absolute bottom-2 right-2 bg-[#6C5CFF] text-black p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#17142B]"
             onClick={(e) => { e.stopPropagation(); handleDownload(); }}
           >
             <FaDownload />

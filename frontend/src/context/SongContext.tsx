@@ -65,6 +65,16 @@ export const SongProvider = ({ children }: SongContextProps) => {
     setAlbumData(albums.find((album) => album.id === Number(albumId)) ?? null)
   }, [albums])
 
+  const fetchSongs = useCallback(async () => {
+    const { data } = await axios.get<{ songs: Song[] }>(`${server}/api/v1/songs`)
+    setSongs(data.songs)
+  }, [])
+
+  const fetchAlbums = useCallback(async () => {
+    const { data } = await axios.get<{ albums: Album[] }>(`${server}/api/v1/albums`)
+    setAlbums(data.albums)
+  }, [])
+
   // nextSong: advance one song; if we're on the last song, loop back to the first
   const nextSong = useCallback(() => {
     if (songs.length === 0) return
@@ -93,7 +103,7 @@ export const SongProvider = ({ children }: SongContextProps) => {
   }, [index, songs])
 
   return (
-    <SongContext.Provider value={{ songs, loading, error, selectedSong, setSelectedSong, isPlaying, setIsPlaying, albums, song, albumSong, albumData, fetchSingleSong, fetchAlbumsongs, nextSong, prevSong }}>
+    <SongContext.Provider value={{ songs, loading, error, selectedSong, setSelectedSong, isPlaying, setIsPlaying, albums, song, albumSong, albumData, fetchSingleSong, fetchAlbumsongs, fetchSongs, fetchAlbums, nextSong, prevSong }}>
       {children}
     </SongContext.Provider>
   )

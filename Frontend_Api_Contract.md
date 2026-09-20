@@ -318,9 +318,38 @@ Authorization: Bearer <token>
 }
 ```
 
+## 10) GET /users
+
+List all registered users (admin only). Admin service proxies to the user service.
+
+### Headers
+
+```http
+Authorization: Bearer <token>
+```
+
+### Response example
+
+```json
+{
+  "message": "Users retrieved successfully",
+  "status": "Success",
+  "users": [
+    {
+      "_id": "65f...",
+      "name": "Mary",
+      "email": "mary@musiccloud.app",
+      "role": "admin",
+      "playlist": [],
+      "createdAt": "2026-09-18T00:00:00.000Z"
+    }
+  ]
+}
+```
+
 # User Service Endpoints
 
-## 10) POST /user/register
+## 11) POST /user/register
 
 Register a user.
 
@@ -351,7 +380,7 @@ Register a user.
 }
 ```
 
-## 11) POST /user/login
+## 12) POST /user/login
 
 Login a user.
 
@@ -381,7 +410,7 @@ Login a user.
 }
 ```
 
-## 12) GET /user/profile
+## 13) GET /user/profile
 
 Fetch the current logged-in user profile.
 
@@ -407,7 +436,7 @@ Authorization: Bearer <token>
 }
 ```
 
-## 13) POST /user/playlist
+## 14) POST /user/playlist
 
 Toggle a song in the logged-in user's playlist. If the song id is already in the playlist it is removed, otherwise it is added.
 
@@ -443,7 +472,7 @@ Authorization: Bearer <token>
 
 Removing again responds with `"message": "Song removed from playlist successfully"`.
 
-## 14) POST /user/logout
+## 15) POST /user/logout
 
 Log out the current user and revoke the token server-side. The token is blacklisted until its natural expiry, after which it is dropped from the database. The frontend still clears `localStorage` afterwards as a fallback.
 

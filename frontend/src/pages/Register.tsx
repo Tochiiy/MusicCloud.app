@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiEye, FiEyeOff, FiLock, FiMail, FiUser } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiLock, FiMail, FiUser, FiUserPlus } from "react-icons/fi";
 import { useUserData } from "../context/userContext";
 import Logo from "../components/Logo";
 import toast from "react-hot-toast";
@@ -126,6 +126,7 @@ const Register = () => {
                          focus-visible:ring-offset-[#1E1A38] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {btnLoading ? "Creating account..." : "Create account"}
+              {!btnLoading && <FiUserPlus className="inline ml-2" />}
             </button>
           </form>
 

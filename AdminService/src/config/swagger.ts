@@ -1,6 +1,19 @@
 import swaggerJSDoc from 'swagger-jsdoc';
 
 const paths = {
+  '/api/v1/admin/users': {
+    get: {
+      tags: ['Users'],
+      summary: 'List all registered users (admin only)',
+      description: 'Proxies to the user service and returns all registered users. Requires an admin JWT.',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: { description: 'Users retrieved successfully' },
+        401: { description: 'Unauthorized' },
+        403: { description: 'Forbidden' },
+      },
+    },
+  },
   '/api/v1/admin/album/new': {
     post: {
       tags: ['Albums'],

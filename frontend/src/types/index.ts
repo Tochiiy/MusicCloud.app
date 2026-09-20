@@ -35,6 +35,8 @@ export interface SongContextType {
   albumData: Album | null
   fetchSingleSong: (id: number) => Promise<Song | null>
   fetchAlbumsongs: (albumId: string) => Promise<void>
+  fetchSongs: () => Promise<void>
+  fetchAlbums: () => Promise<void>
   nextSong: () => void
   prevSong: () => void
 }

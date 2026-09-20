@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import { useSongContext } from "../context/songContext";
 import { useUserData } from "../context/userContext";
 import { FaBookmark, FaDownload, FaPause, FaPlay } from "react-icons/fa6";
+import { FiAlignLeft, FiSettings } from "react-icons/fi";
 import toast from "react-hot-toast";
 import Loading from "../components/Loading";
 import type { Song } from "../types";
@@ -75,8 +76,12 @@ const PlayList = () => {
                   <p>
                     <b className="mr-4">#</b>
                   </p>
-                  <p className="hidden sm:block">Description</p>
-                  <p className="text-center">Actions</p>
+                  <p className="hidden sm:block">
+                    <FiAlignLeft className="inline mr-1" /> <b>Description</b>
+                  </p>
+                  <p className="text-center">
+                    <FiSettings className="inline mr-1" /> <b>Actions</b>
+                  </p>
                 </div>
 
                 <hr />
@@ -103,14 +108,20 @@ const PlayList = () => {
                         </p>
                         <p className="flex justify-center items-center gap-5">
                           <button
-                            className="text-[15px] text-center"
+                            type="button"
+                            aria-label="Remove from playlist"
+                            title="Remove from playlist"
+                            className="text-[15px] text-center text-[#a7a7a7] rounded transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
                             onClick={() => addToPlaylist(String(song.id))}
                           >
                             <FaBookmark />
                           </button>
 
                           <button
-                            className="text-[15px] text-center"
+                            type="button"
+                            aria-label={isPlaying && selectedSong === song.id ? "Pause" : "Play"}
+                            title={isPlaying && selectedSong === song.id ? "Pause" : "Play"}
+                            className="text-[15px] text-center text-[#a7a7a7] rounded transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
                             onClick={() => {
                               if (isPlaying && selectedSong === song.id) {
                                 setIsPlaying(false);
@@ -128,7 +139,10 @@ const PlayList = () => {
                           </button>
 
                           <button
-                            className="text-[15px] text-center"
+                            type="button"
+                            aria-label="Download song"
+                            title="Download song"
+                            className="text-[15px] text-center text-[#a7a7a7] rounded transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
                             onClick={() => handleDownload(song)}
                           >
                             <FaDownload />

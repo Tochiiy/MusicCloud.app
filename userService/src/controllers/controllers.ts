@@ -121,6 +121,24 @@ const myProfile = TryCatch(async (_req: Request, res: Response) => {
     return res.status(ApiStatusType.SUCCESS.code).json({ message, status: ApiStatusType.SUCCESS.message, user: userWithoutPassword });
   });
 
+const getAllUsers = TryCatch(async (_req: Request, res: Response) => {
+  const userInfo = _req.user;
+  const userId = typeof userInfo === 'object' && userInfo !== null ? (userInfo as { _id?: unknown })._id as string | undefined : undefined;
+
+  if (!userId) {
+    return res.status(ApiStatusType.UNAUTHORIZED.code).json({ message: 'Unauthorized', status: ApiStatusType.UNAUTHORIZED.message });
+  }
+
+  const requester = await User.findById(userId);
+  if (!requester || requester.role !== 'admin') {
+    return res.status(ApiStatusType.FORBIDDEN.code).json({ message: 'Forbidden', status: ApiStatusType.FORBIDDEN.message });
+  }
+
+  const users = await User.find().select('-password').sort({ createdAt: -1 });
+
+  return res.status(ApiStatusType.SUCCESS.code).json({ message: 'Users retrieved successfully', status: ApiStatusType.SUCCESS.message, users });
+});
+
 const logoutUser = TryCatch(async (_req: Request, res: Response) => {
     const authHeader = _req.headers.authorization as string | undefined;
     const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
@@ -147,5 +165,5 @@ const logoutUser = TryCatch(async (_req: Request, res: Response) => {
     return res.status(ApiStatusType.SUCCESS.code).json({ message: 'User logged out successfully', status: ApiStatusType.SUCCESS.message });
   });
 
-export { registerUser, loginUser, addToPlayList, logoutUser, myProfile }; 
+export { registerUser, loginUser, addToPlayList, getAllUsers, logoutUser, myProfile }; 
 

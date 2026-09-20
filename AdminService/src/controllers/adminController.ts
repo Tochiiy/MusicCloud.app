@@ -2,9 +2,22 @@ import type { Request, Response } from 'express';
 import { unlinkSync } from 'node:fs';
 import { pool } from '../database/adminModel.js';
 import cloudinary from '../cloudinaryBlob/cloudinary.js';
+import axios from 'axios';
 import { albumSchema, songSchema } from '../validators/adminValidator.js';
 import { ApiStatusType } from '../Api_responseStatus/ApiStatusType.js';
 import { tryCatch as TryCatch } from '../TryCatch.ts/TryCatch.js';
+
+const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://localhost:6100';
+
+export const getAllUsers = TryCatch(async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization as string;
+
+  const { data } = await axios.get(`${USER_SERVICE_URL}/api/v1/user/users`, {
+    headers: { Authorization: authHeader },
+  });
+
+  return res.status(ApiStatusType.SUCCESS.code).json({ message: data.message, status: ApiStatusType.SUCCESS.message, users: data.users });
+});
 // Content sniffing (re-enable if you want to verify the real file type, not the client-declared one):
 // import { getFileType } from '../cloudinaryBlob/file-typeParser.js';
 // import { readFile } from 'node:fs/promises';
