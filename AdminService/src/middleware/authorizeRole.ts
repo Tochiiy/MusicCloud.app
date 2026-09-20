@@ -6,7 +6,7 @@ const authorizeRole = (roles: string[]) => {
     const role = req.user?.role;
 
     if (!role || !roles.includes(role)) {
-      res.status(ApiStatusType.FORBIDDEN.code).json({ status: ApiStatusType.FORBIDDEN, message: 'Forbidden' });
+      res.status(ApiStatusType.FORBIDDEN.code).json({ status: ApiStatusType.FORBIDDEN.message, message: 'Forbidden' });
       return;
     }
 

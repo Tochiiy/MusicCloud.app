@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import PlayListCard from "../components/PlayListCard";
 import { FiCast, FiShield } from "react-icons/fi";
+import { FaHeart } from "react-icons/fa6";
 import { useUserData } from "../context/userContext";
 
 const Sidebar = () => {
@@ -41,6 +42,12 @@ const Sidebar = () => {
       }}>
         <PlayListCard />
         </div>
+      <div className="flex items-center gap-3 pl-4 pr-4 mt-2 cursor-pointer font-semibold hover:opacity-80" onClick={() => {
+        navigate("/liked")
+      }}>
+        <FaHeart className="text-[#FF4D6D] w-6 h-6" />
+        <span>Liked Songs</span>
+      </div>
 
       <div className="p-4 m-2 bg-[#17142B] rounded font-semibold flex flex-col items-start gap-1 pl-4 mt-4">
         <h1>Follow some podcast</h1>

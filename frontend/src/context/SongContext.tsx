@@ -51,10 +51,32 @@ export const SongProvider = ({ children }: SongContextProps) => {
   }, [])
 
   const fetchSingleSong = useCallback(async (id: number): Promise<Song | null> => {
-    const selected = songs.find((item) => item.id === id) ?? null
+    const selected =
+      songs.find((item) => item.id === id) ??
+      (song?.id === id ? song : null)
     setSong(selected)
     setSelectedSong(selected?.id ?? null)
     return selected
+  }, [song, songs])
+
+  // Deep-link/fallback lookup: fetch a single song from the server when it is
+  // not present in the already-loaded list (e.g. direct navigation to /song/:id).
+  // Also updates the global player state so the bottom bar follows the page.
+  const fetchSongById = useCallback(async (id: number): Promise<Song | null> => {
+    const localSong = songs.find((item) => item.id === id)
+    if (localSong) {
+      setSong(localSong)
+      setSelectedSong(localSong.id)
+      return localSong
+    }
+    try {
+      const { data } = await axios.get<{ song: Song }>(`${server}/api/v1/songs/${id}`)
+      setSong(data.song)
+      setSelectedSong(data.song.id)
+      return data.song
+    } catch {
+      return null
+    }
   }, [songs])
    
   const [index, setIndex] = useState<number>(0)
@@ -126,7 +148,7 @@ export const SongProvider = ({ children }: SongContextProps) => {
   }, [index, song, songs])
 
   return (
-    <SongContext.Provider value={{ songs, loading, error, selectedSong, setSelectedSong, isPlaying, setIsPlaying, albums, song, albumSong, albumData, fetchSingleSong, fetchAlbumsongs, fetchSongs, fetchAlbums, nextSong, prevSong }}>
+    <SongContext.Provider value={{ songs, loading, error, selectedSong, setSelectedSong, isPlaying, setIsPlaying, albums, song, albumSong, albumData, fetchSingleSong, fetchSongById, fetchAlbumsongs, fetchSongs, fetchAlbums, nextSong, prevSong }}>
       {children}
     </SongContext.Provider>
   )

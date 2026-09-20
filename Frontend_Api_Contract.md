@@ -351,7 +351,7 @@ Authorization: Bearer <token>
 
 ## 11) POST /user/register
 
-Register a user.
+Register a user. Returns **HTTP 201 Created** on success (previously 200) and a `status` of `"Created"`.
 
 ### Request body
 
@@ -368,7 +368,7 @@ Register a user.
 ```json
 {
   "message": "User registered successfully",
-  "status": "Success",
+  "status": "Created",
   "token": "<jwt>",
   "user": {
     "_id": "...",

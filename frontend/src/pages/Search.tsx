@@ -101,7 +101,7 @@ const Search = () => {
               Songs{" "}
               <span className="text-[var(--mc-text-muted)]">({songHits.length})</span>
             </h1>
-            <div className="flex overflow-auto">
+            <div className="flex flex-wrap">
               {songHits.map((e, i) => (
                 <SongCard key={i} image={e.thumbnail} name={e.title} description={e.description ?? ""} id={e.id} />
               ))}
@@ -115,7 +115,7 @@ const Search = () => {
               Albums{" "}
               <span className="text-[var(--mc-text-muted)]">({albumHits.length})</span>
             </h1>
-            <div className="flex overflow-auto">
+            <div className="flex flex-wrap">
               {albumHits.map((e, i) => (
                 <AlbumCard key={i} image={e.thumbnail} name={e.title} desc={e.description ?? ""} id={e.id} />
               ))}

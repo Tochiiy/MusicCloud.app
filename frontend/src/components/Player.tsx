@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 import { useSongContext } from '../context/songContext'
 import { GrChapterNext, GrChapterPrevious } from 'react-icons/gr'
 import { FaPause, FaPlay } from 'react-icons/fa6'
@@ -8,6 +9,7 @@ import { motion, useReducedMotion } from 'framer-motion'
 
 const Player = () => {
   const { song, fetchSingleSong, selectedSong, isPlaying, setIsPlaying, nextSong, prevSong } = useSongContext()
+  const navigate = useNavigate()
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const reduced = useReducedMotion()
@@ -117,7 +119,7 @@ useEffect(() => {
 
           <div className="shrink-0 items-center gap-4 lg:flex min-w-0">
             {song ? (
-              <div className="relative shrink-0" onClick={() => { fetchSingleSong(song.id) }}>
+              <div className="relative shrink-0" onClick={() => { navigate(`/song/${song.id}`) }}>
                 <motion.div
                   className="absolute -inset-1.5 rounded-full"
                   style={{
@@ -128,7 +130,7 @@ useEffect(() => {
                   transition={spinTransition}
                 />
                 <motion.img
-                  src={song.thumbnail ? song.thumbnail : "./download.jpeg"}
+                  src={song.thumbnail ? song.thumbnail : "/download.jpeg"}
                   alt={song.title}
                   className="relative w-[50px] h-[50px] rounded-full"
                   animate={spinAnimate}

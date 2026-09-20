@@ -4,9 +4,7 @@ import type { SongCardProps } from "../types/SongCardProps"
 import { useNavigate } from "react-router-dom"
 import { useUserData } from "../context/userContext"
 import { useSongContext } from "../context/songContext"
-import toast from "react-hot-toast"
-
-const server = import.meta.env.VITE_SONG_SERVER_URL || 'http://localhost:8000'
+import { downloadSong } from "../utils/downloadSong"
 
 const SongCard: FC<SongCardProps> = ({ image, name, description, id }) => {
   const navigate = useNavigate()
@@ -20,25 +18,8 @@ const SongCard: FC<SongCardProps> = ({ image, name, description, id }) => {
     toggleLike(String(id));
   }
 
-  const handleDownload = async () => {
-    try {
-      const response = await fetch(`${server}/api/v1/songs/${id}/download`);
-      if (!response.ok) {
-        toast.error("Failed to download song");
-        return;
-      }
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${name || "song"}.mp3`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-    } catch {
-      toast.error("Failed to download song");
-    }
+  const handleDownload = () => {
+    downloadSong(id);
   }
 
   const saveToPlaylist = async () => {
@@ -56,7 +37,7 @@ const SongCard: FC<SongCardProps> = ({ image, name, description, id }) => {
       onClick={() => { navigate(`/song/${id}`) }}
     >
       <div className="relative">
-        <img src={image ? image : "./download.jpeg"} alt={name} className="rounded w-[180px] mr-1" />
+        <img src={image ? image : "/download.jpeg"} alt={name} className="rounded w-[180px] mr-1" />
         {isAuth && (
           <button
             type="button"

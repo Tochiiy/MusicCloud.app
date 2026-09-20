@@ -1,79 +1,48 @@
-import { useParams } from "react-router-dom";
+import { useMemo } from "react";
 import Layout from "../components/Layout";
 import { useSongContext } from "../context/songContext";
-import { useEffect, useState } from "react";
-import AlbumLoading from "../components/AlbumLoading";
+import { useUserData } from "../context/userContext";
+import { FaBookmark, FaDownload, FaHeart, FaPause, FaPlay } from "react-icons/fa6";
+import { FiAlignLeft, FiSettings } from "react-icons/fi";
+import Loading from "../components/Loading";
 import Logo from "../components/Logo";
 import { useTheme } from "../components/themeContext";
-import { FaBookmark, FaDownload, FaPause, FaPlay, FaHeart, FaRegHeart } from "react-icons/fa6";
-import { FiAlignLeft, FiSettings } from "react-icons/fi";
-import { useUserData } from "../context/userContext";
-import type { Song } from "../types";
 import { downloadSong } from "../utils/downloadSong";
+import type { Song } from "../types";
 
-const Album = () => {
-  const params = useParams<{ id: string }>();
-  return <AlbumContent key={params.id ?? "none"} params={params} />;
-};
+const LikedSongs = () => {
+  const { songs, setIsPlaying, setSelectedSong, selectedSong, isPlaying, loading } = useSongContext();
 
-const AlbumContent = ({ params }: { params: { id?: string } }) => {
-  const {
-    fetchAlbumsongs,
-    albumSong,
-    albumData,
-    setIsPlaying,
-    setSelectedSong,
-    selectedSong,
-    isPlaying,
-    error,
-  } = useSongContext();
-
-  const { isAuth, addToPlaylist, toggleLike, user } = useUserData();
+  const { user, addToPlaylist, toggleLike } = useUserData();
 
   const { theme } = useTheme();
 
-  const [albumLoading, setAlbumLoading] = useState(true);
+  const likedSongs = useMemo(
+    () =>
+      songs.filter((song) => (user?.likedSongs ?? []).includes(song.id.toString())),
+    [songs, user]
+  );
 
   const handleDownload = (song: Song) => {
     downloadSong(song.id);
   };
 
-  useEffect(() => {
-    if (!params.id) return;
-    fetchAlbumsongs(params.id).finally(() => setAlbumLoading(false));
-  }, [params.id, fetchAlbumsongs]);
-
-  const albumNotFound = !albumLoading && !albumData && albumSong.length === 0;
-
   return (
     <div>
       <Layout>
-        {albumLoading ? (
-          <AlbumLoading />
-        ) : albumNotFound ? (
-          <div className="mt-10 text-[var(--mc-text-muted)]">
-            <h2 className="text-2xl font-bold mb-2 text-[var(--mc-text)]">
-              Album not found
-            </h2>
-            <p>This album could not be loaded{error ? ` — ${error}` : ""}.</p>
-          </div>
+        {loading ? (
+          <Loading />
         ) : (
           <>
             <div className="mt-10 flex gap-8 flex-col md:flex-row md:items-center">
-              <img
-                src={albumData?.thumbnail ?? "/download.jpeg"}
-                className="w-48 rounded"
-                alt=""
-              />
+              <img src={"/download.jpeg"} className="w-48 rounded" alt="" />
 
               <div className="flex flex-col">
-                <p className="text-[var(--mc-text-muted)]">Album</p>
+                <p className="text-[var(--mc-text-muted)]">PlayList</p>
                 <h2 className="text-3xl font-bold mb-4 md:text-5xl">
-                  {albumData?.title ?? "Album"}
+                  {user?.name} Liked Songs
                 </h2>
-                <h4 className="text-[var(--mc-text-muted)]">
-                  {albumData?.description ?? (error ? `Could not load album info — ${error}` : "Album")}
-                </h4>
+                <h4 className="text-[var(--mc-text-muted)]">Songs you put your heart on</h4>
                 <p className="mt-1">
                   <Logo className="inline-block w-6" tile={theme === "light"} />
                 </p>
@@ -93,13 +62,12 @@ const AlbumContent = ({ params }: { params: { id?: string } }) => {
             </div>
 
             <hr className="border-[var(--mc-border)]" />
-            {albumSong.length === 0 ? (
+            {likedSongs.length === 0 ? (
               <p className="mt-10 text-[var(--mc-text-muted)]">
-                No songs in this album yet.
+                No liked songs yet. Hit the heart on any song to save it here.
               </p>
             ) : (
-              albumSong.map((song, index) => {
-                const liked = (user?.likedSongs ?? []).includes(String(song.id));
+              likedSongs.map((song, index) => {
                 return (
                   <div
                     className="grid grid-cols-[1fr_auto] sm:grid-cols-4 mt-10 mb-4 pl-2 text-[var(--mc-text-muted)] hover:bg-[var(--mc-hover)] cursor-pointer"
@@ -108,9 +76,7 @@ const AlbumContent = ({ params }: { params: { id?: string } }) => {
                     <p className="flex items-center min-w-0 pr-2 text-[var(--mc-text)]">
                       <b className="mr-2 shrink-0 text-[var(--mc-text-muted)]">{index + 1}</b>
                       <img
-                        src={
-                          song.thumbnail ? song.thumbnail : "/download.jpeg"
-                        }
+                        src={song.thumbnail ? song.thumbnail : "/download.jpeg"}
                         className="inline w-10 mr-3 shrink-0"
                         alt=""
                       />
@@ -120,32 +86,26 @@ const AlbumContent = ({ params }: { params: { id?: string } }) => {
                       {song.description?.slice(0, 30)}...
                     </p>
                     <p className="flex justify-center items-center gap-4">
-                      {isAuth && (
-                        <button
-                          type="button"
-                          aria-label={liked ? "Unlike song" : "Like song"}
-                          title={liked ? "Unlike song" : "Like song"}
-                          className="p-2.5 text-lg text-center text-[var(--mc-icon)] rounded-full transition hover:text-[var(--mc-accent-text)] hover:bg-[var(--mc-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
-                          onClick={() => toggleLike(String(song.id))}
-                        >
-                          {liked ? (
-                            <FaHeart className="text-[#FF4D6D]" />
-                          ) : (
-                            <FaRegHeart />
-                          )}
-                        </button>
-                      )}
-                      {isAuth && (
-                        <button
-                          type="button"
-                          aria-label="Save to playlist"
-                          title="Save to playlist"
-                          className="p-2.5 text-lg text-center text-[var(--mc-icon)] rounded-full transition hover:text-[var(--mc-accent-text)] hover:bg-[var(--mc-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
-                          onClick={() => addToPlaylist(String(song.id))}
-                        >
-                          <FaBookmark />
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        aria-label="Remove from Liked Songs"
+                        title="Remove from Liked Songs"
+                        className="p-2.5 text-lg text-center text-[var(--mc-icon)] rounded-full transition hover:text-[var(--mc-accent-text)] hover:bg-[var(--mc-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
+                        onClick={() => toggleLike(String(song.id))}
+                      >
+                        <FaHeart className="text-[#FF4D6D]" />
+                      </button>
+
+                      <button
+                        type="button"
+                        aria-label="Save to playlist"
+                        title="Save to playlist"
+                        className="p-2.5 text-lg text-center text-[var(--mc-icon)] rounded-full transition hover:text-[var(--mc-accent-text)] hover:bg-[var(--mc-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
+                        onClick={() => addToPlaylist(String(song.id))}
+                      >
+                        <FaBookmark />
+                      </button>
+
                       <button
                         type="button"
                         aria-label={isPlaying && selectedSong === song.id ? "Pause" : "Play"}
@@ -166,6 +126,7 @@ const AlbumContent = ({ params }: { params: { id?: string } }) => {
                           <FaPlay />
                         )}
                       </button>
+
                       <button
                         type="button"
                         aria-label="Download song"
@@ -187,4 +148,4 @@ const AlbumContent = ({ params }: { params: { id?: string } }) => {
   );
 };
 
-export default Album;
+export default LikedSongs;

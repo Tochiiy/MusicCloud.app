@@ -4,11 +4,28 @@ import { ApiStatusType } from '../Api_responseStatus/ApiStatusType.js';
 import bcrypt from 'bcrypt';
 import { signedToken, verifyToken } from '../signedToken/jwtAuth.js';
 import { tryCatch as TryCatch } from '../TryCatch.ts/TryCatch.js';
+import { cacheGet, cacheSet, cacheDel, userProfileKey, usersListKey } from '../config/redis.js';
 import type { Request, Response } from 'express';
 
-const registerUser = TryCatch(async (_req: Request, res: Response) => {
-  // Implement user registration logic here
+type SanitizedUser = Record<string, unknown>;
 
+interface ToggleResult {
+  playlist?: string[];
+  likedSongs?: string[];
+  name?: string;
+  email?: string;
+  role?: string;
+  _id?: string;
+  password?: string;
+  toObject: () => Record<string, unknown>;
+}
+
+const sanitizeUser = (user: { toObject: () => Record<string, unknown> }): SanitizedUser => {
+  const { password: _password, ...userWithoutPassword } = user.toObject();
+  return userWithoutPassword;
+};
+
+const registerUser = TryCatch(async (_req: Request, res: Response) => {
   const { name, email, password } = registerUserSchema.parse(_req.body);
 
   const user = await User.findOne({ email });
@@ -35,15 +52,14 @@ const registerUser = TryCatch(async (_req: Request, res: Response) => {
     throw error;
   }
 
+  await cacheDel(usersListKey);
+
   const token = signedToken({ _id: newUser._id.toString() });
 
-  const { password: _password, ...userWithoutPassword } = newUser.toObject();
+  const userWithoutPassword = sanitizeUser(newUser);
 
-  return res.status(ApiStatusType.SUCCESS.code).json({ message: 'User registered successfully', status: ApiStatusType.SUCCESS.message, token, user: userWithoutPassword });
+  return res.status(ApiStatusType.CREATED.code).json({ message: 'User registered successfully', status: ApiStatusType.CREATED.message, token, user: userWithoutPassword });
 });
-
-
-
 
 const loginUser = TryCatch(async (_req: Request, res: Response) => {
   const { email, password } = loginUserSchema.parse(_req.body);
@@ -62,13 +78,10 @@ const loginUser = TryCatch(async (_req: Request, res: Response) => {
 
   const token = signedToken({ _id: user._id.toString() });
 
-  const { password: _password, ...userWithoutPassword } = user.toObject();
+  const userWithoutPassword = sanitizeUser(user);
 
   return res.status(ApiStatusType.SUCCESS.code).json({ message: 'User logged in successfully', status: ApiStatusType.SUCCESS.message, token, user: userWithoutPassword });
 });
-
-
-
 
 const myProfile = TryCatch(async (_req: Request, res: Response) => {
     const userInfo = _req.user;
@@ -77,19 +90,50 @@ const myProfile = TryCatch(async (_req: Request, res: Response) => {
     if (!userId) {
       return res.status(ApiStatusType.UNAUTHORIZED.code).json({ message: 'Unauthorized', status: ApiStatusType.UNAUTHORIZED.message });
     }
-  
+
+    const cacheKey = userProfileKey(userId);
+    const cached = await cacheGet<SanitizedUser>(cacheKey);
+    if (cached) {
+      return res.status(ApiStatusType.SUCCESS.code).json({ message: 'User profile retrieved successfully', status: ApiStatusType.SUCCESS.message, user: cached });
+    }
+
     const user = await User.findById(userId);
-  
+
     if (!user) {
       return res.status(ApiStatusType.NOT_FOUND.code).json({ message: 'User not found', status: ApiStatusType.NOT_FOUND.message });
     }
 
-    const { password: _password, ...userWithoutPassword } = user.toObject();
-  
+    const userWithoutPassword = sanitizeUser(user);
+    await cacheSet(cacheKey, userWithoutPassword);
+
     return res.status(ApiStatusType.SUCCESS.code).json({ message: 'User profile retrieved successfully', status: ApiStatusType.SUCCESS.message, user: userWithoutPassword });
   });
 
-  const addToPlayList = TryCatch(async (_req: Request, res: Response) => {
+// Atomically toggles a string membership array (playlist | likedSongs) using an
+// aggregation pipeline update on a single document. This avoids the read-modify-write
+// race that could previously leave duplicate ids when two requests hit at once.
+const toggleArrayField = async (userId: string, field: 'playlist' | 'likedSongs', songId: string) => {
+  const updatedUser = (await User.findOneAndUpdate(
+    { _id: userId },
+    [
+      {
+        $set: {
+          [field]: {
+            $cond: [
+              { $in: [songId, `$${field}`] },
+              { $setDifference: [`$${field}`, [songId]] },
+              { $setUnion: [`$${field}`, [songId]] },
+            ],
+          },
+        },
+      },
+    ] as any,
+    { new: true, updatePipeline: true } as any,
+  )) as ToggleResult | null;
+  return updatedUser;
+};
+
+const addToPlayList = TryCatch(async (_req: Request, res: Response) => {
     const userId = typeof _req.user === 'object' && _req.user !== null ? (_req.user as { _id?: string })._id : undefined;
 
     if (!userId) {
@@ -101,23 +145,17 @@ const myProfile = TryCatch(async (_req: Request, res: Response) => {
       return res.status(ApiStatusType.BAD_REQUEST.code).json({ message: 'Song id is required', status: ApiStatusType.BAD_REQUEST.message });
     }
 
-    const user = await User.findById(userId);
-    if (!user) {
+    const updatedUser = await toggleArrayField(userId, 'playlist', songId);
+    if (!updatedUser) {
       return res.status(ApiStatusType.NOT_FOUND.code).json({ message: 'User not found', status: ApiStatusType.NOT_FOUND.message });
     }
 
-    const index = user.playlist.indexOf(songId);
-    let message = 'Song added to playlist successfully';
-    if (index !== -1) {
-      user.playlist.splice(index, 1);
-      message = 'Song removed from playlist successfully';
-    } else {
-      user.playlist.push(songId);
-    }
+    await cacheDel(userProfileKey(userId), usersListKey);
 
-    await user.save();
+    const isSaved = (updatedUser.playlist ?? []).includes(songId);
+    const message = isSaved ? 'Song added to playlist successfully' : 'Song removed from playlist successfully';
 
-    const { password: _password, ...userWithoutPassword } = user.toObject();
+    const userWithoutPassword = sanitizeUser(updatedUser);
     return res.status(ApiStatusType.SUCCESS.code).json({ message, status: ApiStatusType.SUCCESS.message, user: userWithoutPassword });
   });
 
@@ -133,23 +171,17 @@ const toggleLike = TryCatch(async (_req: Request, res: Response) => {
     return res.status(ApiStatusType.BAD_REQUEST.code).json({ message: 'Song id is required', status: ApiStatusType.BAD_REQUEST.message });
   }
 
-  const user = await User.findById(userId);
-  if (!user) {
+  const updatedUser = await toggleArrayField(userId, 'likedSongs', songId);
+  if (!updatedUser) {
     return res.status(ApiStatusType.NOT_FOUND.code).json({ message: 'User not found', status: ApiStatusType.NOT_FOUND.message });
   }
 
-  const index = user.likedSongs.indexOf(songId);
-  let message = 'Song liked successfully';
-  if (index !== -1) {
-    user.likedSongs.splice(index, 1);
-    message = 'Song unliked successfully';
-  } else {
-    user.likedSongs.push(songId);
-  }
+  await cacheDel(userProfileKey(userId), usersListKey);
 
-  await user.save();
+  const isLiked = (updatedUser.likedSongs ?? []).includes(songId);
+  const message = isLiked ? 'Song liked successfully' : 'Song unliked successfully';
 
-  const { password: _password, ...userWithoutPassword } = user.toObject();
+  const userWithoutPassword = sanitizeUser(updatedUser);
   return res.status(ApiStatusType.SUCCESS.code).json({ message, status: ApiStatusType.SUCCESS.message, user: userWithoutPassword });
 });
 
@@ -166,18 +198,16 @@ const getLikesSummary = TryCatch(async (_req: Request, res: Response) => {
     return res.status(ApiStatusType.FORBIDDEN.code).json({ message: 'Forbidden', status: ApiStatusType.FORBIDDEN.message });
   }
 
-  const users = await User.find({ likedSongs: { $exists: true, $ne: [] } }).select('likedSongs');
+  // Aggregation pipeline: unwind + group avoids loading every user into memory
+  // and computes per-song counts directly on the server.
+  const rows = await User.aggregate<{ _id: string; count: number }>([
+    { $match: { likedSongs: { $exists: true, $ne: [] } } },
+    { $unwind: '$likedSongs' },
+    { $group: { _id: '$likedSongs', count: { $sum: 1 } } },
+    { $sort: { count: -1 } },
+  ]);
 
-  const counts: Record<string, number> = {};
-  for (const user of users) {
-    for (const songId of user.likedSongs ?? []) {
-      counts[songId] = (counts[songId] ?? 0) + 1;
-    }
-  }
-
-  const likes = Object.entries(counts)
-    .map(([songId, count]) => ({ songId, count }))
-    .sort((a, b) => b.count - a.count);
+  const likes = rows.map((row) => ({ songId: row._id, count: row.count }));
 
   return res.status(ApiStatusType.SUCCESS.code).json({ message: 'Likes summary retrieved successfully', status: ApiStatusType.SUCCESS.message, likes });
 });
@@ -195,7 +225,13 @@ const getAllUsers = TryCatch(async (_req: Request, res: Response) => {
     return res.status(ApiStatusType.FORBIDDEN.code).json({ message: 'Forbidden', status: ApiStatusType.FORBIDDEN.message });
   }
 
+  const cached = await cacheGet<SanitizedUser[]>(usersListKey);
+  if (cached) {
+    return res.status(ApiStatusType.SUCCESS.code).json({ message: 'Users retrieved successfully', status: ApiStatusType.SUCCESS.message, users: cached });
+  }
+
   const users = await User.find().select('-password').sort({ createdAt: -1 });
+  await cacheSet(usersListKey, users);
 
   return res.status(ApiStatusType.SUCCESS.code).json({ message: 'Users retrieved successfully', status: ApiStatusType.SUCCESS.message, users });
 });
@@ -208,7 +244,13 @@ const logoutUser = TryCatch(async (_req: Request, res: Response) => {
       return res.status(ApiStatusType.UNAUTHORIZED.code).json({ message: 'No token provided', status: ApiStatusType.UNAUTHORIZED.message });
     }
 
-    const decoded = verifyToken(token) as { exp?: number } | string | undefined;
+    let decoded: string | { exp?: number } | null = null;
+    try {
+      decoded = verifyToken(token) as string | { exp?: number };
+    } catch {
+      return res.status(ApiStatusType.UNAUTHORIZED.code).json({ message: 'Invalid or expired token', status: ApiStatusType.UNAUTHORIZED.message });
+    }
+
     const expiresAt = typeof decoded === 'object' && decoded !== null && typeof decoded.exp === 'number'
       ? new Date(decoded.exp * 1000)
       : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -226,5 +268,4 @@ const logoutUser = TryCatch(async (_req: Request, res: Response) => {
     return res.status(ApiStatusType.SUCCESS.code).json({ message: 'User logged out successfully', status: ApiStatusType.SUCCESS.message });
   });
 
-export { registerUser, loginUser, addToPlayList, toggleLike, getLikesSummary, getAllUsers, logoutUser, myProfile }; 
-
+export { registerUser, loginUser, addToPlayList, toggleLike, getLikesSummary, getAllUsers, logoutUser, myProfile };

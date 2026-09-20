@@ -1,5 +1,6 @@
 export const ApiStatusType = {
   SUCCESS: { code: 200, message: 'Success' },
+  CREATED: { code: 201, message: 'Created' },
   BAD_REQUEST: { code: 400, message: 'Bad Request' },
   UNAUTHORIZED: { code: 401, message: 'Unauthorized' },
   FORBIDDEN: { code: 403, message: 'Forbidden' },

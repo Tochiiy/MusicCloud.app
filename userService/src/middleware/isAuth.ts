@@ -9,20 +9,20 @@ const isAuth = async (req: Request, res: Response, next: NextFunction): Promise<
     const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
 
     if (!token) {
-      res.status(ApiStatusType.UNAUTHORIZED.code).json({ status: ApiStatusType.UNAUTHORIZED, message: 'No token provided' });
+      res.status(ApiStatusType.UNAUTHORIZED.code).json({ status: ApiStatusType.UNAUTHORIZED.message, message: 'No token provided' });
       return;
     }
 
     const blacklisted = await BlacklistedToken.exists({ token });
     if (blacklisted) {
-      res.status(ApiStatusType.UNAUTHORIZED.code).json({ status: ApiStatusType.UNAUTHORIZED, message: 'Token revoked, please log in again' });
+      res.status(ApiStatusType.UNAUTHORIZED.code).json({ status: ApiStatusType.UNAUTHORIZED.message, message: 'Token revoked, please log in again' });
       return;
     }
 
     req.user = verifyToken(token);
     next();
   } catch (error) {
-    res.status(ApiStatusType.UNAUTHORIZED.code).json({ status: ApiStatusType.UNAUTHORIZED, message: 'Invalid token' });
+    res.status(ApiStatusType.UNAUTHORIZED.code).json({ status: ApiStatusType.UNAUTHORIZED.message, message: 'Invalid token' });
   }
 };
 

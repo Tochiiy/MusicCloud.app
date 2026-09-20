@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { FiHome, FiList, FiShield, FiSearch } from "react-icons/fi";
+import { FaHeart } from "react-icons/fa6";
 import { useUserData } from "../context/userContext";
 
 const MobileNavItem = ({ isActive }: { isActive: boolean }) =>
@@ -26,6 +27,10 @@ const MobileNav = () => {
       <NavLink to="/playlist" className={MobileNavItem}>
         <FiList size={22} />
         PlayList
+      </NavLink>
+      <NavLink to="/liked" className={MobileNavItem}>
+        <FaHeart size={22} />
+        Liked
       </NavLink>
       {user?.role === "admin" && (
         <NavLink to="/admin/dashboard" className={MobileNavItem}>

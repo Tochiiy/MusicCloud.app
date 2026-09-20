@@ -4,13 +4,11 @@ import { useSongContext } from "../context/songContext";
 import { useUserData } from "../context/userContext";
 import { FaBookmark, FaDownload, FaPause, FaPlay, FaHeart, FaRegHeart } from "react-icons/fa6";
 import { FiAlignLeft, FiSettings } from "react-icons/fi";
-import toast from "react-hot-toast";
 import Loading from "../components/Loading";
 import Logo from "../components/Logo";
 import { useTheme } from "../components/themeContext";
+import { downloadSong } from "../utils/downloadSong";
 import type { Song } from "../types";
-
-const server = import.meta.env.VITE_SONG_SERVER_URL || "http://localhost:8000";
 
 const PlayList = () => {
   const { songs, setIsPlaying, setSelectedSong, selectedSong, isPlaying, loading } = useSongContext();
@@ -27,25 +25,8 @@ const PlayList = () => {
     [songs, user]
   );
 
-  const handleDownload = async (song: Song) => {
-    try {
-      const response = await fetch(`${server}/api/v1/songs/${song.id}/download`);
-      if (!response.ok) {
-        toast.error("Failed to download song");
-        return;
-      }
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${song.title || "song"}.mp3`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-    } catch {
-      toast.error("Failed to download song");
-    }
+  const handleDownload = (song: Song) => {
+    downloadSong(song.id);
   };
 
   return (

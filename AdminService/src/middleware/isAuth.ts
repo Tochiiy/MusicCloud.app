@@ -13,7 +13,7 @@ const isAuth = async (req: Request, res: Response, next: NextFunction): Promise<
     const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
 
     if (!token) {
-      res.status(ApiStatusType.UNAUTHORIZED.code).json({ status: ApiStatusType.UNAUTHORIZED, message: 'No token provided' });
+      res.status(ApiStatusType.UNAUTHORIZED.code).json({ status: ApiStatusType.UNAUTHORIZED.message, message: 'No token provided' });
       return;
     }
 
@@ -24,7 +24,7 @@ const isAuth = async (req: Request, res: Response, next: NextFunction): Promise<
     req.user = data.user;
     next();
   } catch (error) {
-    res.status(ApiStatusType.UNAUTHORIZED.code).json({ status: ApiStatusType.UNAUTHORIZED, message: 'Invalid token' });
+    res.status(ApiStatusType.UNAUTHORIZED.code).json({ status: ApiStatusType.UNAUTHORIZED.message, message: 'Invalid token' });
   }
 };
 

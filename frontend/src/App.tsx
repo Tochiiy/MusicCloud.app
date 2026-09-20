@@ -11,6 +11,9 @@ import Admin from "./pages/Admin"
 import AdminUsers from "./pages/AdminUsers"
 import ComingSoon from "./pages/ComingSoon"
 import Album from "./pages/Album"
+import Song from "./pages/Song"
+import LikedSongs from "./pages/LikedSongs"
+import Welcome from "./pages/Welcome"
 import { useUserData } from "./context/userContext"
 import Loading from "./components/Loading"
 
@@ -27,7 +30,7 @@ const ProtectedRoute = ({ children, adminOnly = false }: ProtectedRouteProps) =>
   }
 
   if (!isAuth) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/welcome" replace />
   }
 
   if (adminOnly && user?.role !== "admin") {
@@ -43,10 +46,13 @@ const App = () => {
   return (
       <>
         <Routes>
+                  <Route path="/welcome" element={loading ? <Loading /> : isAuth ? <Navigate to="/" replace /> : <Welcome />} />
                   <Route path="/" element={<ProtectedRoute><Homepage /></ProtectedRoute>} />
                   <Route path="/login" element={loading ? <Loading /> : isAuth ? <Navigate to="/" replace /> : <Login />} />
                     <Route path="/register" element={loading ? <Loading /> : isAuth ? <Navigate to="/" replace /> : <Register />} />
                     <Route path="/playlist" element={<ProtectedRoute><PlayList /></ProtectedRoute>} />
+                    <Route path="/liked" element={<ProtectedRoute><LikedSongs /></ProtectedRoute>} />
+                    <Route path="/song/:id" element={<ProtectedRoute><Song /></ProtectedRoute>} />
                     <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
                     <Route path="/album/:id" element={<ProtectedRoute><Album /></ProtectedRoute>} />
                     <Route path="/admin/dashboard" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
