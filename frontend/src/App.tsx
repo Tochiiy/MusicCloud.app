@@ -8,6 +8,7 @@ import WrongEndpoint from "./pages/WrongEndpoint"
 import PlayList from "./pages/PlayList"
 import Admin from "./pages/Admin"
 import AdminUsers from "./pages/AdminUsers"
+import ComingSoon from "./pages/ComingSoon"
 import Album from "./pages/Album"
 import { useUserData } from "./context/userContext"
 import Loading from "./components/Loading"
@@ -48,6 +49,7 @@ const App = () => {
                     <Route path="/album/:id" element={<ProtectedRoute><Album /></ProtectedRoute>} />
                     <Route path="/admin/dashboard" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
                     <Route path="/admin/users" element={<ProtectedRoute adminOnly><AdminUsers /></ProtectedRoute>} />
+                    <Route path="/coming-soon" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
                     <Route path="/404" element={<NotFound />} />
                     <Route path="/400" element={<BadRequest />} />
                     <Route path="/405" element={<WrongEndpoint />} />

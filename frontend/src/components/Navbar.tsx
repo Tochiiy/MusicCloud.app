@@ -28,8 +28,8 @@ const Navbar = () => {
     </div>
 
     <div className="flex items-center gap-4">
-      <p className="px-4 py-1 cursor-pointer bg-[#EFECFF] text-[#17142B] rounded-full text-[20px] mt-4 md:block hidden ">Explore Premium</p>
-      <p className="px-4 py-1 cursor-pointer bg-[#EFECFF] text-[#17142B] rounded-full text-[20px] mt-4 md:block hidden ">Install App</p>
+      <p className="px-4 py-1 cursor-pointer bg-[#EFECFF] text-[#17142B] rounded-full text-[20px] mt-4 md:block hidden " onClick={() => navigate("/coming-soon")}>Explore Premium</p>
+      <p className="px-4 py-1 cursor-pointer bg-[#EFECFF] text-[#17142B] rounded-full text-[20px] mt-4 md:block hidden " onClick={() => navigate("/coming-soon")}>Install App</p>
       <p className="px-4 py-1 cursor-pointer bg-[#EFECFF] text-[#17142B] rounded-full text-[20px] mt-4 md:block" onClick={handleLogout}>LogOut</p>
    </div>
   </div>
