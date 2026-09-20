@@ -55,7 +55,7 @@ const Welcome = () => {
                 <FiArrowRight className="transition-transform group-hover:translate-x-1" />
               </Link>
             <Link to="/requests" className="mt-5 inline-flex text-sm text-white/50 underline-offset-4 transition hover:text-white hover:underline">
-              Request a password reset or song post
+              Make a request or song post
             </Link>
               <Link
                 to="/login"

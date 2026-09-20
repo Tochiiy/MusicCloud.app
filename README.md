@@ -288,17 +288,3 @@ VITE_ADMIN_SERVER_URL=https://your-admin-service.onrender.com
 
 [`frontend/vercel.json`](frontend/vercel.json) rewrites client-side routes to `index.html`, so routes such as `/welcome`, `/song/:id`, and `/album/:id` work after a browser refresh.
 
-## Security and Operations
-
-- Keep all `.env` files out of Git.
-- Rotate any credentials that were exposed during local development.
-- Use long random JWT secrets in production.
-- Restrict `CORS_ORIGINS` to the real Vercel origin.
-- Keep Cloudinary and Upstash credentials in Render secret environment variables.
-- Do not use development watchers in production; Render runs the compiled `npm start` command.
-- Monitor Render logs and Cloudinary storage usage.
-- Keep database migrations versioned and run them deliberately.
-
-## License
-
-No license has been declared yet. Add a license before distributing the project publicly.
