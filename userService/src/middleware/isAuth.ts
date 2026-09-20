@@ -1,4 +1,5 @@
 import { verifyToken } from '../signedToken/jwtAuth.js';
+import { BlacklistedToken } from '../database/model.js';
 import type { Request, Response, NextFunction } from 'express';
 import { ApiStatusType } from '../Api_responseStatus/ApiStatusType.js';
 
@@ -9,6 +10,12 @@ const isAuth = async (req: Request, res: Response, next: NextFunction): Promise<
 
     if (!token) {
       res.status(ApiStatusType.UNAUTHORIZED.code).json({ status: ApiStatusType.UNAUTHORIZED, message: 'No token provided' });
+      return;
+    }
+
+    const blacklisted = await BlacklistedToken.exists({ token });
+    if (blacklisted) {
+      res.status(ApiStatusType.UNAUTHORIZED.code).json({ status: ApiStatusType.UNAUTHORIZED, message: 'Token revoked, please log in again' });
       return;
     }
 

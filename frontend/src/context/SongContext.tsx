@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 import type { Song, Album, SongContextProps } from '../types'
 import { SongContext } from './songContext'
 
@@ -13,6 +14,8 @@ export const SongProvider = ({ children }: SongContextProps) => {
   const [selectedSong, setSelectedSong] = useState<number | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [song, setSong] = useState<Song | null>(null)
+  const [albumSong, setAlbumSong] = useState<Song[]>([])
+  const [albumData, setAlbumData] = useState<Album | null>(null)
 
   useEffect(() => {
     const loadData = async () => {
@@ -29,13 +32,17 @@ export const SongProvider = ({ children }: SongContextProps) => {
           setSong(loadedSongs[0])
         }
       } else {
-        setError(songsRes.reason?.message ?? 'Failed to load songs')
+        const message = songsRes.reason?.message ?? 'Failed to load songs'
+        setError(message)
+        toast.error(message)
       }
 
       if (albumsRes.status === 'fulfilled') {
         setAlbums(albumsRes.value.data.albums)
       } else {
-        setError((prev) => prev ?? (albumsRes.reason?.message ?? 'Failed to load albums'))
+        const message = albumsRes.reason?.message ?? 'Failed to load albums'
+        setError((prev) => prev ?? message)
+        toast.error(message)
       }
 
       setLoading(false)
@@ -51,6 +58,12 @@ export const SongProvider = ({ children }: SongContextProps) => {
   }, [songs])
    
   const [index, setIndex] = useState<number>(0)
+
+  const fetchAlbumsongs = useCallback(async (albumId: string) => {
+    const { data } = await axios.get<{ songs: Song[] }>(`${server}/api/v1/albums/${albumId}/songs`)
+    setAlbumSong(data.songs)
+    setAlbumData(albums.find((album) => album.id === Number(albumId)) ?? null)
+  }, [albums])
 
   // nextSong: advance one song; if we're on the last song, loop back to the first
   const nextSong = useCallback(() => {
@@ -80,7 +93,7 @@ export const SongProvider = ({ children }: SongContextProps) => {
   }, [index, songs])
 
   return (
-    <SongContext.Provider value={{ songs, loading, error, selectedSong, setSelectedSong, isPlaying, setIsPlaying, albums, song, fetchSingleSong, nextSong, prevSong }}>
+    <SongContext.Provider value={{ songs, loading, error, selectedSong, setSelectedSong, isPlaying, setIsPlaying, albums, song, albumSong, albumData, fetchSingleSong, fetchAlbumsongs, nextSong, prevSong }}>
       {children}
     </SongContext.Provider>
   )

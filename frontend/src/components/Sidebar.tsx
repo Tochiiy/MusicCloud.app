@@ -32,7 +32,7 @@ const Sidebar = () => {
         </div>
       </div>
       <div onClick={() => {
-        navigate("/playlists")
+        navigate("/playlist")
       }}>
         <PlayListCard />
         </div>

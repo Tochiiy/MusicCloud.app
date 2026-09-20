@@ -4,11 +4,15 @@ import { useUserData } from "../context/userContext";
 
 
 
-
 const Navbar = () => {
 
   const navigate = useNavigate();
   const { logoutUser } = useUserData();
+
+  const handleLogout = async () => {
+    await logoutUser();
+    navigate("/login", { replace: true });
+  };
 
   return <>
   
@@ -21,7 +25,7 @@ const Navbar = () => {
     <div className="flex items-center gap-4">
       <p className="px-4 py-1 cursor-pointer bg-[#EFECFF] text-[#17142B] rounded-full text-[20px] mt-4 md:block hidden ">Explore Premium</p>
       <p className="px-4 py-1 cursor-pointer bg-[#EFECFF] text-[#17142B] rounded-full text-[20px] mt-4 md:block hidden ">Install App</p>
-      <p className="px-4 py-1 cursor-pointer bg-[#EFECFF] text-[#17142B] rounded-full text-[20px] mt-4 md:block" onClick={logoutUser}>LogOut</p>
+      <p className="px-4 py-1 cursor-pointer bg-[#EFECFF] text-[#17142B] rounded-full text-[20px] mt-4 md:block" onClick={handleLogout}>LogOut</p>
    </div>
   </div>
   
@@ -29,7 +33,7 @@ const Navbar = () => {
       <p className="bg-[#EFECFF] text-[#17142B] rounded-2xl py-1 px-4 text-[20px] cursor-pointer  md:block">All</p>
       <p className="bg-[#EFECFF] text-[#17142B] rounded-2xl py-1 px-4 text-[20px] cursor-pointer hidden md:block">Music</p>
       <p className="bg-[#EFECFF] text-[#17142B] rounded-2xl py-1 px-4 text-[20px] cursor-pointer hidden md:block">Podcasts</p>
-      <p className="bg-[#EFECFF] text-[#17142B] rounded-2xl py-1 px-4 text-[20px] cursor-pointer md:block" onClick={() => {navigate("/playlists")}}>PlayList</p>
+      <p className="bg-[#EFECFF] text-[#17142B] rounded-2xl py-1 px-4 text-[20px] cursor-pointer md:block" onClick={() => {navigate("/playlist")}}>PlayList</p>
   </div>
   
   </>

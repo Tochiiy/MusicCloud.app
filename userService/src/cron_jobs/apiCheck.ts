@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 
-const API_URL = process.env.API_BASE_URL || 'http://localhost:6000';
+const API_URL = process.env.API_BASE_URL || 'http://localhost:6100';
 
 export const startApiHealthCheck = () => {
   cron.schedule('*/5 * * * *', async () => {

@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiLock, FiMail } from "react-icons/fi";
 import { useUserData } from "../context/userContext";
 import Logo from "../components/Logo";
+import toast from "react-hot-toast";
+import { loginUserSchema } from "../validators/userValidator";
 
 const inputClass =
   "w-full rounded-full border border-white/10 bg-[#17142B] px-5 py-3 text-sm text-white " +
@@ -21,7 +23,13 @@ const Login = () => {
   async function submitHandler(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    loginUser(email, password, navigate);
+    const result = loginUserSchema.safeParse({ email, password });
+    if (!result.success) {
+      toast.error(result.error.issues[0]?.message ?? "Check your details");
+      return;
+    }
+
+    loginUser(result.data.email, result.data.password, navigate);
   }
 
   return (
@@ -45,31 +53,35 @@ const Login = () => {
           <form className="mt-8" onSubmit={submitHandler}>
             <div className="mb-4">
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-white/80">
-                Email
+                Email <span className="text-red-400" aria-hidden="true">*</span><span className="sr-only"> required</span>
               </label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                placeholder="you@example.com"
-                className={inputClass}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+              <div className="relative">
+                <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} />
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  className={`${inputClass} pl-12`}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
             <div className="mb-6">
               <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-white/80">
-                Password
+                Password <span className="text-red-400" aria-hidden="true">*</span><span className="sr-only"> required</span>
               </label>
               <div className="relative">
+                <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} />
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="Enter your password"
-                  className={`${inputClass} pr-12`}
+                  className={`${inputClass} pl-12 pr-12`}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

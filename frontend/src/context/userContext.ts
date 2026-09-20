@@ -18,6 +18,7 @@ export interface UserContextType {
     navigate: (path: string) => void
   ) => Promise<void>
   logoutUser: () => Promise<void>
+  addToPlaylist: (id: string) => Promise<void>
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined)

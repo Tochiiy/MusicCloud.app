@@ -117,6 +117,70 @@ const paths = {
       },
     },
   },
+  '/api/v1/user/playlist': {
+    post: {
+      tags: ['Auth'],
+      summary: 'Toggle a song in the user playlist',
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['id'],
+              properties: {
+                id: { type: 'string', example: '42' },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'Song added or removed from playlist successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string' },
+                  status: { type: 'string' },
+                  user: userSchema,
+                },
+              },
+            },
+          },
+        },
+        400: { description: 'Song id is required' },
+        401: { description: 'Unauthorized' },
+      },
+    },
+  },
+  '/api/v1/user/logout': {
+    post: {
+      tags: ['Auth'],
+      summary: 'Log out and revoke the current token',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: {
+          description: 'User logged out successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string' },
+                  status: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        401: { description: 'Unauthorized' },
+      },
+    },
+  },
 } as const;
 
 const options: swaggerJSDoc.Options = {
@@ -127,7 +191,7 @@ const options: swaggerJSDoc.Options = {
       version: '1.0.0',
       description: 'Auto-generated API docs for the user microservice (v1)',
     },
-    servers: [{ url: 'http://localhost:6000' }],
+    servers: [{ url: 'http://localhost:6100' }],
     components: {
       securitySchemes: {
         bearerAuth: {

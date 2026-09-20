@@ -62,6 +62,26 @@ const paths: Record<string, unknown> = {
       },
     },
   },
+  '/api/v1/songs/{songId}/download': {
+    get: {
+      tags: ['Songs'],
+      summary: 'Download a song as an audio file',
+      description: 'Streams the audio file for a song through the service so the browser avoids cross-origin restrictions',
+      parameters: [
+        {
+          name: 'songId',
+          in: 'path',
+          required: true,
+          schema: { type: 'integer' },
+        },
+      ],
+      responses: {
+        200: { description: 'Audio file streamed with attachment disposition (audio/mpeg)' },
+        400: { description: 'Invalid song id' },
+        404: { description: 'Song not found' },
+      },
+    },
+  },
 };
 
 const options: swaggerJSDoc.Options = {

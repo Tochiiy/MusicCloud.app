@@ -31,7 +31,10 @@ export interface SongContextType {
   setIsPlaying: (playing: boolean) => void
   albums: Album[]
   song: Song | null
+  albumSong: Song[]
+  albumData: Album | null
   fetchSingleSong: (id: number) => Promise<Song | null>
+  fetchAlbumsongs: (albumId: string) => Promise<void>
   nextSong: () => void
   prevSong: () => void
 }

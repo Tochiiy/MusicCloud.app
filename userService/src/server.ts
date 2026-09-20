@@ -47,7 +47,7 @@ app.get('/health', (req, res) => {
 
 connectDB();
 startApiHealthCheck();
-const PORT = process.env.PORT || 6000;
+const PORT = process.env.PORT || 6100;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

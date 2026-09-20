@@ -4,7 +4,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { UserContext } from "./userContext";
 import type { User } from "../types";
 
-const server = import.meta.env.VITE_USER_SERVER_URL || "http://localhost:6000";
+const server = import.meta.env.VITE_USER_SERVER_URL || "http://localhost:6100";
 
 interface UserProviderProps {
   children: ReactNode;
@@ -92,7 +92,10 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         setUser(data.user);
         setIsAuth(true);
       } catch (error) {
-        console.log(error);
+        localStorage.removeItem("token");
+        setUser(null);
+        setIsAuth(false);
+        toast.error(getErrorMessage(error, "Your session has expired. Please log in again."));
       } finally {
         setLoading(false);
       }
@@ -101,12 +104,42 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   }, []);
 
   async function logoutUser() {
-    localStorage.removeItem("token");
-    setUser(null);
-    setIsAuth(false);
-    toast.success("User Logged Out");
+    const token = localStorage.getItem("token");
+    try {
+      if (token) {
+        await axios.post(`${server}/api/v1/user/logout`, null, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      }
+    } catch {
+      // still clear locally — client-side logout is the fallback
+    } finally {
+      localStorage.removeItem("token");
+      setUser(null);
+      setIsAuth(false);
+      toast.success("User Logged Out");
+    }
   }
 
+
+
+    async function addToPlaylist(id: string) {
+      try {
+        const { data } = await axios.post(`${server}/api/v1/user/playlist`, {
+          id,
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setUser(data.user);
+        toast.success(data.message);
+      } catch (error) {
+        toast.error(getErrorMessage(error, "An error occurred"));
+      }
+    }
   return (
     <UserContext.Provider
       value={{
@@ -117,6 +150,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         loginUser,
         registerUser,
         logoutUser,
+        addToPlaylist,
       }}
     >
       {children}

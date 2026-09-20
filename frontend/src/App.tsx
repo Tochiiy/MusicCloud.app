@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Navigate, Routes, Route } from "react-router-dom"
+import { Navigate, Routes, Route } from "react-router-dom"
 import Homepage from "./pages/Homepage"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
@@ -7,7 +7,9 @@ import BadRequest from "./pages/BadRequest"
 import WrongEndpoint from "./pages/WrongEndpoint"
 import PlayList from "./pages/PlayList"
 import Admin from "./pages/Admin"
+import Album from "./pages/Album"
 import { useUserData } from "./context/userContext"
+import Loading from "./components/Loading"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -15,7 +17,11 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, adminOnly = false }: ProtectedRouteProps) => {
-  const { isAuth, user } = useUserData()
+  const { isAuth, loading, user } = useUserData()
+
+  if (loading) {
+    return <Loading />
+  }
 
   if (!isAuth) {
     return <Navigate to="/login" replace />
@@ -29,23 +35,22 @@ const ProtectedRoute = ({ children, adminOnly = false }: ProtectedRouteProps) =>
 }
 
 const App = () => {
-  const { isAuth } = useUserData()
+  const { isAuth, loading } = useUserData()
 
   return (
       <>
-        <Router>
-          <Routes>
-                  <Route path="/" element={<Homepage />} />
-                  <Route path="/login" element={isAuth ? <Navigate to="/" replace /> : <Login />} />
-                    <Route path="/register" element={isAuth ? <Navigate to="/" replace /> : <Register />} />
+        <Routes>
+                  <Route path="/" element={<ProtectedRoute><Homepage /></ProtectedRoute>} />
+                  <Route path="/login" element={loading ? <Loading /> : isAuth ? <Navigate to="/" replace /> : <Login />} />
+                    <Route path="/register" element={loading ? <Loading /> : isAuth ? <Navigate to="/" replace /> : <Register />} />
                     <Route path="/playlist" element={<ProtectedRoute><PlayList /></ProtectedRoute>} />
+                    <Route path="/album/:id" element={<ProtectedRoute><Album /></ProtectedRoute>} />
                     <Route path="/admin/dashboard" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
                     <Route path="/404" element={<NotFound />} />
                     <Route path="/400" element={<BadRequest />} />
                     <Route path="/405" element={<WrongEndpoint />} />
                     <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Router>
+        </Routes>
       </>
   )
 }

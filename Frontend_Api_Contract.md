@@ -20,7 +20,7 @@ npm install form-data
 
 - Song service: http://localhost:8000/api/v1
 - Admin service: http://localhost:7000/api/v1/admin
-- User service: http://localhost:6000/api/v1
+- User service: http://localhost:6100/api/v1
 
 ## Auth header
 
@@ -138,6 +138,25 @@ Fetch a single song by id.
   }
 }
 ```
+
+## 4b) GET /songs/:songId/download
+
+Streams the song's audio file through the backend, so the browser can download it without hitting the media host's CORS rules.
+
+### Path params
+
+- songId: number
+
+### Response
+
+The raw audio bytes with:
+
+```http
+Content-Type: audio/mpeg
+Content-Disposition: attachment; filename="<title>.mp3"
+```
+
+Supports byte ranges (`Range`/206) for seeking.
 
 # Admin Service Endpoints
 
@@ -385,6 +404,61 @@ Authorization: Bearer <token>
     "role": "user",
     "playlist": []
   }
+}
+```
+
+## 13) POST /user/playlist
+
+Toggle a song in the logged-in user's playlist. If the song id is already in the playlist it is removed, otherwise it is added.
+
+### Headers
+
+```http
+Authorization: Bearer <token>
+```
+
+### Request body
+
+```json
+{
+  "id": "42"
+}
+```
+
+### Response example
+
+```json
+{
+  "message": "Song added to playlist successfully",
+  "status": "Success",
+  "user": {
+    "_id": "...",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "user",
+    "playlist": ["42"]
+  }
+}
+```
+
+Removing again responds with `"message": "Song removed from playlist successfully"`.
+
+## 14) POST /user/logout
+
+Log out the current user and revoke the token server-side. The token is blacklisted until its natural expiry, after which it is dropped from the database. The frontend still clears `localStorage` afterwards as a fallback.
+
+### Headers
+
+```http
+Authorization: Bearer <token>
+```
+
+### Response example
+
+```json
+{
+  "message": "User logged out successfully",
+  "status": "Success"
 }
 ```
 

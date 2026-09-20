@@ -39,3 +39,26 @@ const userSchema: Schema<IUser> = new Schema({
 
 
 export const User = mongoose.model<IUser>('User', userSchema);
+
+interface IBlacklistedToken extends Document {
+    token: string;
+    expiresAt: Date;
+}
+
+const blacklistedTokenSchema: Schema<IBlacklistedToken> = new Schema({
+    token: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    expiresAt: {
+        type: Date,
+        required: true,
+    },
+}, {
+    timestamps: true,
+});
+
+blacklistedTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+export const BlacklistedToken = mongoose.model<IBlacklistedToken>('BlacklistedToken', blacklistedTokenSchema);

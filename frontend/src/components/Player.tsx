@@ -1,16 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
+import toast from 'react-hot-toast'
 import { useSongContext } from '../context/songContext'
 import { GrChapterNext, GrChapterPrevious } from 'react-icons/gr'
 import { FaPause, FaPlay } from 'react-icons/fa6'
+import { FiVolume2, FiVolumeX } from 'react-icons/fi'
+import { motion, useReducedMotion } from 'framer-motion'
 
 const Player = () => {
   const { song, fetchSingleSong, selectedSong, isPlaying, setIsPlaying, nextSong, prevSong } = useSongContext()
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const reduced = useReducedMotion()
 
   const [volume, setVolume] = useState<number>(1)
+  const [muted, setMuted] = useState<boolean>(false)
   const [progress, setProgress] = useState<number>(0)
    const [duration, setduration] = useState<number>(0)
+
+  const spinAnimate = reduced || !isPlaying ? { rotate: 0 } : { rotate: 360 }
+  const spinTransition = reduced || !isPlaying
+    ? { duration: 0.45, ease: 'easeOut' as const }
+    : { rotate: { duration: 3, ease: 'linear' as const, repeat: Infinity } }
 
   useEffect(() => {
 
@@ -44,10 +54,24 @@ const Player = () => {
     if (isPlaying) {
       audio.pause()
     } else {
-      audio.play().catch(() => {})
+      audio.play().catch(() => {
+        toast.error('Unable to play this song')
+      })
     }
     setIsPlaying(!isPlaying)
   }
+
+  // keep the audio element in sync with the global isPlaying state so that
+  // play/pause actions from outside the player (album rows, song cards) work too
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (isPlaying) {
+      audio.play().catch(() => {})
+    } else {
+      audio.pause()
+    }
+  }, [isPlaying, song])
   
   const volumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = (parseFloat(e.target.value) / 100)
@@ -55,6 +79,13 @@ const Player = () => {
       audioRef.current.volume = newVolume
       setVolume(newVolume)
     }
+  }
+
+  const toggleMute = () => {
+    const audio = audioRef.current
+    if (!audio) return
+    audio.muted = !audio.muted
+    setMuted(!muted)
   }
 
   const durationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,7 +109,24 @@ useEffect(() => {
         <div className="h-[10%] bg-[#17142B] flex items-center justify-between text-white px-4">
           <div className="items-center gap-4 lg:flex">
 
-            <img src={song.thumbnail ? song.thumbnail : "./download.jpeg"} alt={song.title} className="w-[50px] h-[50px] rounded-full" onClick={() => { fetchSingleSong(song.id) }} />
+            <div className="relative shrink-0" onClick={() => { fetchSingleSong(song.id) }}>
+              <motion.div
+                className="absolute -inset-1.5 rounded-full"
+                style={{
+                  background:
+                    "conic-gradient(from 0deg, rgba(142,130,255,0.4), rgba(23,20,43,0) 22%, rgba(142,130,255,0.2) 45%, rgba(23,20,43,0) 72%, rgba(142,130,255,0.4))",
+                }}
+                animate={spinAnimate}
+                transition={spinTransition}
+              />
+              <motion.img
+                src={song.thumbnail ? song.thumbnail : "./download.jpeg"}
+                alt={song.title}
+                className="relative w-[50px] h-[50px] rounded-full"
+                animate={spinAnimate}
+                transition={spinTransition}
+              />
+            </div>
             
             <div className='hidden md:block'> 
               <p className='font-bold'>{song.title}</p>
@@ -116,6 +164,14 @@ useEffect(() => {
           </div>
 
           <div className="flex items-center">
+            <button
+              type="button"
+              onClick={toggleMute}
+              aria-label={muted || volume === 0 ? "Unmute" : "Mute"}
+              className="cursor-pointer mr-2 text-white/70 hover:text-white"
+            >
+              {muted || volume === 0 ? <FiVolumeX size={18} /> : <FiVolume2 size={18} />}
+            </button>
             <input
               type="range"
               className="w-16 md:w-32"
@@ -123,7 +179,7 @@ useEffect(() => {
               max="100"
               step="0.01"
               value={volume * 100}
-              onChange={(e) => volumeChange(e)}
+              onChange={(e) =>{ setMuted(false); volumeChange(e) }}
             />
           </div>
           </div>

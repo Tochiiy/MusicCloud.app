@@ -19,6 +19,27 @@ const DEFAULT_MESSAGES = [
   "Loading your music",
   "Warming up the speakers",
   "Adjusting the headphones",
+  "Finding your next favorite song",
+  "Tuning the tiny music stars",
+  "Making the playlist sparkle",
+  "Almost ready for a little dance",
+  "Turning the volume up on joy",
+];
+
+const BALLOONS = [
+  { pos: "-left-20 top-8", color: "bg-[#FF8FB1]", delay: "0s" },
+  { pos: "-right-20 top-16", color: "bg-[#8E82FF]", delay: "0.8s" },
+  { pos: "-left-12 bottom-2", color: "bg-[#FFD166]", delay: "1.4s" },
+  { pos: "-right-10 bottom-0", color: "bg-[#7DE2D1]", delay: "0.4s" },
+];
+
+const CONFETTI = [
+  { pos: "left-[-3.5rem] top-4", color: "bg-[#FFD166]", rotate: "rotate-12", delay: "0s" },
+  { pos: "left-[-2rem] top-28", color: "bg-[#FF8FB1]", rotate: "-rotate-12", delay: "0.5s" },
+  { pos: "right-[-3rem] top-6", color: "bg-[#7DE2D1]", rotate: "rotate-45", delay: "0.9s" },
+  { pos: "right-[-2rem] top-32", color: "bg-[#FFD166]", rotate: "-rotate-45", delay: "0.3s" },
+  { pos: "left-2 bottom-[-1rem]", color: "bg-[#8E82FF]", rotate: "rotate-45", delay: "0.7s" },
+  { pos: "right-4 bottom-[-1rem]", color: "bg-[#FF8FB1]", rotate: "-rotate-12", delay: "1.1s" },
 ];
 
 const Loading = ({ messages = DEFAULT_MESSAGES }) => {
@@ -63,6 +84,14 @@ const Loading = ({ messages = DEFAULT_MESSAGES }) => {
           from { opacity: 0; transform: translateY(6px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes mc-celebrate {
+          0%, 100% { transform: translateY(0) rotate(-3deg); }
+          50% { transform: translateY(-8px) rotate(3deg); }
+        }
+        @keyframes mc-confetti {
+          0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+          50% { transform: translateY(-7px) rotate(20deg); opacity: 1; }
+        }
         .mc-bar {
           transform-box: fill-box;
           transform-origin: center;
@@ -84,8 +113,19 @@ const Loading = ({ messages = DEFAULT_MESSAGES }) => {
         }
         .mc-dot { animation: mc-dot 1.2s ease-in-out infinite; }
         .mc-swap { animation: mc-swap 0.4s ease-out; }
+        .mc-balloon { animation: mc-celebrate 2.4s ease-in-out infinite; }
+        .mc-confetti { animation: mc-confetti 1.8s ease-in-out infinite; }
+        .mc-balloon::after {
+          content: "";
+          position: absolute;
+          left: 50%;
+          top: 100%;
+          width: 1px;
+          height: 28px;
+          background: rgba(255, 255, 255, 0.6);
+        }
         @media (prefers-reduced-motion: reduce) {
-          .mc-bar, .mc-cat, .mc-shimmer, .mc-dot, .mc-swap { animation: none; }
+          .mc-bar, .mc-cat, .mc-shimmer, .mc-dot, .mc-swap, .mc-balloon, .mc-confetti { animation: none; }
           .mc-note { animation: none; opacity: 0.6; }
           .mc-shimmer { color: #8E82FF; background: none; }
         }
@@ -94,6 +134,24 @@ const Loading = ({ messages = DEFAULT_MESSAGES }) => {
       <div className="relative">
         {/* soft glow behind the scene */}
         <div className="absolute inset-4 rounded-full bg-[#6C5CFF] opacity-30 blur-3xl" />
+
+        {/* Small celebration details keep the loader playful without changing its layout. */}
+        {BALLOONS.map(({ pos, color, delay }, i) => (
+          <span
+            key={`balloon-${i}`}
+            aria-hidden="true"
+            className={`mc-balloon absolute z-10 h-9 w-7 rounded-[50%] ${pos} ${color}`}
+            style={{ animationDelay: delay }}
+          />
+        ))}
+        {CONFETTI.map(({ pos, color, rotate, delay }, i) => (
+          <span
+            key={`confetti-${i}`}
+            aria-hidden="true"
+            className={`mc-confetti absolute z-10 h-2 w-1 rounded-full ${pos} ${color} ${rotate}`}
+            style={{ animationDelay: delay }}
+          />
+        ))}
 
         {/* floating music notes (react-icons) */}
         {NOTES.map(({ Icon, pos, size, color, delay }, i) => (
