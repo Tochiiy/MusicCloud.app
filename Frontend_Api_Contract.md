@@ -472,6 +472,74 @@ Authorization: Bearer <token>
 
 Removing again responds with `"message": "Song removed from playlist successfully"`.
 
+## 14b) POST /user/like
+
+Toggle a like (love) on a song for the logged-in user. If the song id is already liked it is unliked, otherwise it is liked.
+
+### Headers
+
+```http
+Authorization: Bearer <token>
+```
+
+### Request body
+
+```json
+{
+  "id": "42"
+}
+```
+
+### Response example
+
+```json
+{
+  "message": "Song liked successfully",
+  "status": "Success",
+  "user": {
+    "_id": "...",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "user",
+    "playlist": ["42"],
+    "likedSongs": ["42"]
+  }
+}
+```
+
+Unliking again responds with `"message": "Song unliked successfully"`. The user object returned always reflects the new `likedSongs` state, so the frontend stores it directly.
+
+## 14c) GET /user/likes/summary
+
+Admin-only. Returns the number of users who liked each song, ranked by count descending.
+
+### Headers
+
+```http
+Authorization: Bearer <token>
+```
+
+### Response example
+
+```json
+{
+  "message": "Likes summary retrieved successfully",
+  "status": "Success",
+  "likes": [
+    {
+      "songId": "42",
+      "count": 3
+    },
+    {
+      "songId": "12",
+      "count": 1
+    }
+  ]
+}
+```
+
+Non-admin callers get `403`. Joining the `songId` values with the song service's song list is done client-side to render titles.
+
 ## 15) POST /user/logout
 
 Log out the current user and revoke the token server-side. The token is blacklisted until its natural expiry, after which it is dropped from the database. The frontend still clears `localStorage` afterwards as a fallback.

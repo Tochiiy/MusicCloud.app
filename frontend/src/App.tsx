@@ -6,6 +6,7 @@ import NotFound from "./pages/NotFound"
 import BadRequest from "./pages/BadRequest"
 import WrongEndpoint from "./pages/WrongEndpoint"
 import PlayList from "./pages/PlayList"
+import Search from "./pages/Search"
 import Admin from "./pages/Admin"
 import AdminUsers from "./pages/AdminUsers"
 import ComingSoon from "./pages/ComingSoon"
@@ -46,6 +47,7 @@ const App = () => {
                   <Route path="/login" element={loading ? <Loading /> : isAuth ? <Navigate to="/" replace /> : <Login />} />
                     <Route path="/register" element={loading ? <Loading /> : isAuth ? <Navigate to="/" replace /> : <Register />} />
                     <Route path="/playlist" element={<ProtectedRoute><PlayList /></ProtectedRoute>} />
+                    <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
                     <Route path="/album/:id" element={<ProtectedRoute><Album /></ProtectedRoute>} />
                     <Route path="/admin/dashboard" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
                     <Route path="/admin/users" element={<ProtectedRoute adminOnly><AdminUsers /></ProtectedRoute>} />

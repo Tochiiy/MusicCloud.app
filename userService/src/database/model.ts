@@ -6,6 +6,7 @@ interface IUser extends Document {
     password: string;
     role: string;
     playlist: string[];
+    likedSongs: string[];
 }
 
 
@@ -30,6 +31,10 @@ const userSchema: Schema<IUser> = new Schema({
         default: 'user',
     },
     playlist: {
+        type: [String],
+        default: [],
+    },
+    likedSongs: {
         type: [String],
         default: [],
     },

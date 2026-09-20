@@ -121,6 +121,67 @@ const myProfile = TryCatch(async (_req: Request, res: Response) => {
     return res.status(ApiStatusType.SUCCESS.code).json({ message, status: ApiStatusType.SUCCESS.message, user: userWithoutPassword });
   });
 
+const toggleLike = TryCatch(async (_req: Request, res: Response) => {
+  const userId = typeof _req.user === 'object' && _req.user !== null ? (_req.user as { _id?: string })._id : undefined;
+
+  if (!userId) {
+    return res.status(ApiStatusType.UNAUTHORIZED.code).json({ message: 'Unauthorized', status: ApiStatusType.UNAUTHORIZED.message });
+  }
+
+  const songId = _req.body?.id as string | undefined;
+  if (!songId) {
+    return res.status(ApiStatusType.BAD_REQUEST.code).json({ message: 'Song id is required', status: ApiStatusType.BAD_REQUEST.message });
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(ApiStatusType.NOT_FOUND.code).json({ message: 'User not found', status: ApiStatusType.NOT_FOUND.message });
+  }
+
+  const index = user.likedSongs.indexOf(songId);
+  let message = 'Song liked successfully';
+  if (index !== -1) {
+    user.likedSongs.splice(index, 1);
+    message = 'Song unliked successfully';
+  } else {
+    user.likedSongs.push(songId);
+  }
+
+  await user.save();
+
+  const { password: _password, ...userWithoutPassword } = user.toObject();
+  return res.status(ApiStatusType.SUCCESS.code).json({ message, status: ApiStatusType.SUCCESS.message, user: userWithoutPassword });
+});
+
+const getLikesSummary = TryCatch(async (_req: Request, res: Response) => {
+  const userInfo = _req.user;
+  const userId = typeof userInfo === 'object' && userInfo !== null ? (userInfo as { _id?: unknown })._id as string | undefined : undefined;
+
+  if (!userId) {
+    return res.status(ApiStatusType.UNAUTHORIZED.code).json({ message: 'Unauthorized', status: ApiStatusType.UNAUTHORIZED.message });
+  }
+
+  const requester = await User.findById(userId);
+  if (!requester || requester.role !== 'admin') {
+    return res.status(ApiStatusType.FORBIDDEN.code).json({ message: 'Forbidden', status: ApiStatusType.FORBIDDEN.message });
+  }
+
+  const users = await User.find({ likedSongs: { $exists: true, $ne: [] } }).select('likedSongs');
+
+  const counts: Record<string, number> = {};
+  for (const user of users) {
+    for (const songId of user.likedSongs ?? []) {
+      counts[songId] = (counts[songId] ?? 0) + 1;
+    }
+  }
+
+  const likes = Object.entries(counts)
+    .map(([songId, count]) => ({ songId, count }))
+    .sort((a, b) => b.count - a.count);
+
+  return res.status(ApiStatusType.SUCCESS.code).json({ message: 'Likes summary retrieved successfully', status: ApiStatusType.SUCCESS.message, likes });
+});
+
 const getAllUsers = TryCatch(async (_req: Request, res: Response) => {
   const userInfo = _req.user;
   const userId = typeof userInfo === 'object' && userInfo !== null ? (userInfo as { _id?: unknown })._id as string | undefined : undefined;
@@ -165,5 +226,5 @@ const logoutUser = TryCatch(async (_req: Request, res: Response) => {
     return res.status(ApiStatusType.SUCCESS.code).json({ message: 'User logged out successfully', status: ApiStatusType.SUCCESS.message });
   });
 
-export { registerUser, loginUser, addToPlayList, getAllUsers, logoutUser, myProfile }; 
+export { registerUser, loginUser, addToPlayList, toggleLike, getLikesSummary, getAllUsers, logoutUser, myProfile }; 
 

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import Sidebar from './Sidebar'
 import Navbar from './Navbar'
 import Player from './Player'
+import MobileNav from './MobileNav'
 
 interface LayoutProps {
   children: ReactNode;
@@ -19,6 +20,7 @@ const Layout = ({children}: LayoutProps) => {
               </div>
           </div>
           <Player />
+          <MobileNav />
       </div>
   )
 }

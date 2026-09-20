@@ -51,4 +51,5 @@ export interface User {
   email: string
   role: string
   playlist: string[]
+  likedSongs: string[]
 }

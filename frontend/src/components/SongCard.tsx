@@ -1,4 +1,4 @@
-import { FaBookmark, FaDownload, FaPlay } from "react-icons/fa6"
+import { FaBookmark, FaDownload, FaPlay, FaHeart, FaRegHeart } from "react-icons/fa6"
 import type { FC } from 'react'
 import type { SongCardProps } from "../types/SongCardProps"
 import { useNavigate } from "react-router-dom"
@@ -11,8 +11,14 @@ const server = import.meta.env.VITE_SONG_SERVER_URL || 'http://localhost:8000'
 const SongCard: FC<SongCardProps> = ({ image, name, description, id }) => {
   const navigate = useNavigate()
 
-  const { addToPlaylist, isAuth } = useUserData()
+  const { addToPlaylist, toggleLike, isAuth, user } = useUserData()
   const { setSelectedSong, setIsPlaying } = useSongContext()
+
+  const liked = (user?.likedSongs ?? []).includes(String(id))
+
+  const handleLike = () => {
+    toggleLike(String(id));
+  }
 
   const handleDownload = async () => {
     try {
@@ -51,6 +57,21 @@ const SongCard: FC<SongCardProps> = ({ image, name, description, id }) => {
     >
       <div className="relative">
         <img src={image ? image : "./download.jpeg"} alt={name} className="rounded w-[180px] mr-1" />
+        {isAuth && (
+          <button
+            type="button"
+            aria-label={liked ? "Unlike song" : "Like song"}
+            title={liked ? "Unlike song" : "Like song"}
+            className="absolute top-2 right-2 flex h-9 w-9 items-center justify-center rounded-full bg-[#17142B]/60 backdrop-blur transition hover:bg-[#17142B]/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
+            onClick={(e) => { e.stopPropagation(); handleLike(); }}
+          >
+            {liked ? (
+              <FaHeart className="text-[#FF4D6D]" />
+            ) : (
+              <FaRegHeart className="text-[#EFECFF]" />
+            )}
+          </button>
+        )}
         <div className="flex gap-2">
           <button
             type="button"

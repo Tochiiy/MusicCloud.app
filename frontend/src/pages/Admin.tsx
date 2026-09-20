@@ -2,6 +2,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { MdDelete } from "react-icons/md";
+import { FaHeart } from "react-icons/fa6";
 import toast from "react-hot-toast";
 import AdminNav from "../components/AdminNav";
 import { useSongContext } from "../context/songContext";
@@ -41,6 +42,14 @@ const resetFileInputs = () => {
 const server =
   import.meta.env.VITE_ADMIN_SERVER_URL || "http://13.235.70.183:7000";
 
+const userServer =
+  import.meta.env.VITE_USER_SERVER_URL || "http://localhost:6100";
+
+interface LikeCount {
+  songId: string;
+  count: number;
+}
+
 const Admin = () => {
   const navigate = useNavigate();
   const { user } = useUserData();
@@ -52,6 +61,9 @@ const Admin = () => {
   const [album, setAlbum] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [btnLoading, setBtnLoading] = useState<boolean>(false);
+
+  const [likes, setLikes] = useState<LikeCount[]>([]);
+  const [likesLoading, setLikesLoading] = useState<boolean>(true);
 
   const fileChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] || null;
@@ -204,6 +216,24 @@ const Admin = () => {
       navigate("/");
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    const loadLikes = async () => {
+      try {
+        const { data } = await axios.get(`${userServer}/api/v1/user/likes/summary`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setLikes(data.likes ?? []);
+      } catch (error) {
+        toast.error(getErrorMessage(error, "Failed to load likes"));
+      } finally {
+        setLikesLoading(false);
+      }
+    };
+    loadLikes();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#17142B] text-white p-8">
@@ -374,6 +404,52 @@ const Admin = () => {
               );
             })}
           </div>
+        </section>
+
+        <section className="mt-8">
+          <h2 className="text-xl font-semibold text-white">
+            Liked <span className="text-[#8E82FF]">Reactions</span>
+          </h2>
+          {likesLoading ? (
+            <p className="mt-4 text-white/50">Loading likes...</p>
+          ) : likes.length === 0 ? (
+            <p className="mt-4 text-white/50">No songs liked yet.</p>
+          ) : (
+            <div className="mt-4 flex flex-col gap-3">
+              {likes.map((like, i) => {
+                const song = songs.find((s) => s.id === Number(like.songId));
+                return (
+                  <div
+                    key={like.songId}
+                    className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-[#1E1A38] p-4 shadow-lg"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="w-6 shrink-0 text-center font-bold text-white/60">
+                        {i + 1}
+                      </span>
+                      <img
+                        src={song?.thumbnail ?? "/download.jpeg"}
+                        className="h-10 w-10 shrink-0 rounded object-cover"
+                        alt=""
+                      />
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-white">
+                          {song?.title ?? `Song #${like.songId}`}
+                        </p>
+                        <p className="truncate text-sm text-white/50">
+                          {song?.description ?? ""}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#6C5CFF]/20 px-3 py-1 text-sm font-semibold text-[#8E82FF]">
+                      <FaHeart className="text-[#FF4D6D]" />
+                      {like.count}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
       </div>
     </div>

@@ -140,6 +140,22 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         toast.error(getErrorMessage(error, "An error occurred"));
       }
     }
+
+    async function toggleLike(id: string) {
+      try {
+        const { data } = await axios.post(`${server}/api/v1/user/like`, {
+          id,
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setUser(data.user);
+        toast.success(data.message);
+      } catch (error) {
+        toast.error(getErrorMessage(error, "An error occurred"));
+      }
+    }
   return (
     <UserContext.Provider
       value={{
@@ -151,6 +167,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         registerUser,
         logoutUser,
         addToPlaylist,
+        toggleLike,
       }}
     >
       {children}

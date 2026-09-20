@@ -115,7 +115,7 @@ useEffect(() => {
   return (
     <div className="h-[10%] shrink-0 flex items-center justify-between px-4 bg-[var(--mc-frame-bg)] text-[var(--mc-frame-text)] border-t border-[#2E2A55]">
 
-          <div className="items-center gap-4 lg:flex min-w-0">
+          <div className="shrink-0 items-center gap-4 lg:flex min-w-0">
             {song ? (
               <div className="relative shrink-0" onClick={() => { fetchSingleSong(song.id) }}>
                 <motion.div
@@ -182,7 +182,7 @@ useEffect(() => {
             </div>
           </div>
 
-          <div className="flex items-center">
+          <div className="hidden sm:flex items-center">
             <button
               type="button"
               onClick={toggleMute}

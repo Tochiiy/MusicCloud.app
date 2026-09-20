@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import Layout from "../components/Layout";
 import { useSongContext } from "../context/songContext";
 import { useUserData } from "../context/userContext";
-import { FaBookmark, FaDownload, FaPause, FaPlay } from "react-icons/fa6";
+import { FaBookmark, FaDownload, FaPause, FaPlay, FaHeart, FaRegHeart } from "react-icons/fa6";
 import { FiAlignLeft, FiSettings } from "react-icons/fi";
 import toast from "react-hot-toast";
 import Loading from "../components/Loading";
@@ -15,7 +15,7 @@ const server = import.meta.env.VITE_SONG_SERVER_URL || "http://localhost:8000";
 const PlayList = () => {
   const { songs, setIsPlaying, setSelectedSong, selectedSong, isPlaying, loading } = useSongContext();
 
-  const { user, addToPlaylist } = useUserData();
+  const { user, addToPlaylist, toggleLike } = useUserData();
 
   const { theme } = useTheme();
 
@@ -72,7 +72,7 @@ const PlayList = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 sm:grid-cols-4 mt-10 mb-4 pl-2 text-[var(--mc-text-muted)]">
+                <div className="grid grid-cols-[1fr_auto] sm:grid-cols-4 mt-10 mb-4 pl-2 text-[var(--mc-text-muted)]">
                   <p>
                     <b className="mr-4">#</b>
                   </p>
@@ -89,29 +89,43 @@ const PlayList = () => {
                   myPlayList.map((song, index) => {
                     return (
                       <div
-                        className="grid grid-cols-3 sm:grid-cols-4 mt-10 mb-4 pl-2 text-[var(--mc-text-muted)] hover:bg-[var(--mc-hover)] cursor-pointer"
+                        className="grid grid-cols-[1fr_auto] sm:grid-cols-4 mt-10 mb-4 pl-2 text-[var(--mc-text-muted)] hover:bg-[var(--mc-hover)] cursor-pointer"
                         key={index}
                       >
-                        <p className="text-[var(--mc-text)]">
-                          <b className="mr-4 text-[var(--mc-text-muted)]">{index + 1}</b>
+                        <p className="flex items-center min-w-0 pr-2 text-[var(--mc-text)]">
+                          <b className="mr-2 shrink-0 text-[var(--mc-text-muted)]">{index + 1}</b>
                           <img
                             src={
                               song.thumbnail ? song.thumbnail : "/download.jpeg"
                             }
-                            className="inline w-10 mr-5"
+                            className="inline w-10 mr-3 shrink-0"
                             alt=""
-                          />{" "}
-                          {song.title}
+                          />
+                          <span className="truncate">{song.title}</span>
                         </p>
                         <p className="text-[15px] hidden sm:block">
                           {song.description?.slice(0, 30)}...
                         </p>
-                        <p className="flex justify-center items-center gap-5">
+                        <p className="flex justify-center items-center gap-4">
+                          <button
+                            type="button"
+                            aria-label={(user?.likedSongs ?? []).includes(String(song.id)) ? "Unlike song" : "Like song"}
+                            title={(user?.likedSongs ?? []).includes(String(song.id)) ? "Unlike song" : "Like song"}
+                            className="p-2.5 text-lg text-center text-[var(--mc-icon)] rounded-full transition hover:text-[var(--mc-accent-text)] hover:bg-[var(--mc-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
+                            onClick={() => toggleLike(String(song.id))}
+                          >
+                            {(user?.likedSongs ?? []).includes(String(song.id)) ? (
+                              <FaHeart className="text-[#FF4D6D]" />
+                            ) : (
+                              <FaRegHeart />
+                            )}
+                          </button>
+
                           <button
                             type="button"
                             aria-label="Remove from playlist"
                             title="Remove from playlist"
-                            className="text-[15px] text-center text-[var(--mc-icon)] rounded transition hover:text-[var(--mc-accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
+                            className="p-2.5 text-lg text-center text-[var(--mc-icon)] rounded-full transition hover:text-[var(--mc-accent-text)] hover:bg-[var(--mc-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
                             onClick={() => addToPlaylist(String(song.id))}
                           >
                             <FaBookmark />
@@ -121,7 +135,7 @@ const PlayList = () => {
                             type="button"
                             aria-label={isPlaying && selectedSong === song.id ? "Pause" : "Play"}
                             title={isPlaying && selectedSong === song.id ? "Pause" : "Play"}
-                            className="text-[15px] text-center text-[var(--mc-icon)] rounded transition hover:text-[var(--mc-accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
+                            className="p-2.5 text-lg text-center text-[var(--mc-icon)] rounded-full transition hover:text-[var(--mc-accent-text)] hover:bg-[var(--mc-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
                             onClick={() => {
                               if (isPlaying && selectedSong === song.id) {
                                 setIsPlaying(false);
@@ -142,7 +156,7 @@ const PlayList = () => {
                             type="button"
                             aria-label="Download song"
                             title="Download song"
-                            className="text-[15px] text-center text-[var(--mc-icon)] rounded transition hover:text-[var(--mc-accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
+                            className="p-2.5 text-lg text-center text-[var(--mc-icon)] rounded-full transition hover:text-[var(--mc-accent-text)] hover:bg-[var(--mc-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
                             onClick={() => handleDownload(song)}
                           >
                             <FaDownload />
