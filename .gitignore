@@ -18,6 +18,17 @@ uploads/
 *.log
 npm-debug.log*
 
+# Local deployment files
+.vercel/
+.render/
+
+# Test and coverage output
+coverage/
+.nyc_output/
+
+# Temporary notes
+review.md
+
 # OS / editor
 .DS_Store
 Thumbs.db

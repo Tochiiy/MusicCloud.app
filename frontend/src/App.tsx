@@ -16,6 +16,7 @@ import LikedSongs from "./pages/LikedSongs"
 import Welcome from "./pages/Welcome"
 import { useUserData } from "./context/userContext"
 import Loading from "./components/Loading"
+import SupportRequests from "./pages/SupportRequests"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -47,6 +48,7 @@ const App = () => {
       <>
         <Routes>
                   <Route path="/welcome" element={loading ? <Loading /> : isAuth ? <Navigate to="/" replace /> : <Welcome />} />
+                  <Route path="/requests" element={loading ? <Loading /> : isAuth ? <Navigate to="/" replace /> : <SupportRequests />} />
                   <Route path="/" element={<ProtectedRoute><Homepage /></ProtectedRoute>} />
                   <Route path="/login" element={loading ? <Loading /> : isAuth ? <Navigate to="/" replace /> : <Login />} />
                     <Route path="/register" element={loading ? <Loading /> : isAuth ? <Navigate to="/" replace /> : <Register />} />

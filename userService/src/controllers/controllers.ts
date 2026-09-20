@@ -236,6 +236,44 @@ const getAllUsers = TryCatch(async (_req: Request, res: Response) => {
   return res.status(ApiStatusType.SUCCESS.code).json({ message: 'Users retrieved successfully', status: ApiStatusType.SUCCESS.message, users });
 });
 
+const promoteUserToAdmin = TryCatch(async (_req: Request, res: Response) => {
+  const requesterId = typeof _req.user === 'object' && _req.user !== null
+    ? (_req.user as { _id?: string })._id
+    : undefined;
+
+  if (!requesterId) {
+    return res.status(ApiStatusType.UNAUTHORIZED.code).json({ message: 'Unauthorized', status: ApiStatusType.UNAUTHORIZED.message });
+  }
+
+  const requester = await User.findById(requesterId).select('role');
+  if (!requester || requester.role !== 'admin') {
+    return res.status(ApiStatusType.FORBIDDEN.code).json({ message: 'Forbidden', status: ApiStatusType.FORBIDDEN.message });
+  }
+
+  const userId = String(_req.params.userId ?? '');
+  if (!userId || !/^[a-f\d]{24}$/i.test(userId)) {
+    return res.status(ApiStatusType.BAD_REQUEST.code).json({ message: 'Invalid user id', status: ApiStatusType.BAD_REQUEST.message });
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { role: 'admin' },
+    { new: true, runValidators: true },
+  );
+
+  if (!updatedUser) {
+    return res.status(ApiStatusType.NOT_FOUND.code).json({ message: 'User not found', status: ApiStatusType.NOT_FOUND.message });
+  }
+
+  await cacheDel(userProfileKey(userId), usersListKey);
+
+  return res.status(ApiStatusType.SUCCESS.code).json({
+    message: 'User promoted to admin successfully',
+    status: ApiStatusType.SUCCESS.message,
+    user: sanitizeUser(updatedUser),
+  });
+});
+
 const logoutUser = TryCatch(async (_req: Request, res: Response) => {
     const authHeader = _req.headers.authorization as string | undefined;
     const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
@@ -268,4 +306,4 @@ const logoutUser = TryCatch(async (_req: Request, res: Response) => {
     return res.status(ApiStatusType.SUCCESS.code).json({ message: 'User logged out successfully', status: ApiStatusType.SUCCESS.message });
   });
 
-export { registerUser, loginUser, addToPlayList, toggleLike, getLikesSummary, getAllUsers, logoutUser, myProfile };
+export { registerUser, loginUser, addToPlayList, toggleLike, getLikesSummary, getAllUsers, promoteUserToAdmin, logoutUser, myProfile };

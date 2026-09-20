@@ -1,0 +1,73 @@
+services:
+  - type: web
+    name: musiccloud-user-service
+    runtime: docker
+    rootDir: userService
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 24
+      - key: PORT
+        value: 10000
+      - key: CORS_ORIGINS
+        sync: false
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
+
+  - type: web
+    name: musiccloud-song-service
+    runtime: docker
+    rootDir: songService
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 24
+      - key: PORT
+        value: 10000
+      - key: CORS_ORIGINS
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_URL_POOLED
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
+
+  - type: web
+    name: musiccloud-admin-service
+    runtime: docker
+    rootDir: AdminService
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 24
+      - key: PORT
+        value: 10000
+      - key: CORS_ORIGINS
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_URL_POOLED
+        sync: false
+      - key: USER_SERVICE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUD_NAME
+        sync: false
+      - key: CLOUD_API_KEY
+        sync: false
+      - key: CLOUD_API_SECRET
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false

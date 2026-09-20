@@ -27,7 +27,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
 }
 
 const server =
-  import.meta.env.VITE_ADMIN_SERVER_URL || "http://13.235.70.183:7000";
+  import.meta.env.VITE_ADMIN_SERVER_URL || "http://localhost:7000";
 
 const AdminUsers = () => {
   const navigate = useNavigate();
@@ -35,6 +35,7 @@ const AdminUsers = () => {
 
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [promotingId, setPromotingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user && user.role !== "admin") {
@@ -59,6 +60,21 @@ const AdminUsers = () => {
     };
     loadUsers();
   }, []);
+
+  const promoteToAdmin = async (userId: string) => {
+    setPromotingId(userId);
+    try {
+      const { data } = await axios.patch(`${import.meta.env.VITE_USER_SERVER_URL || "http://localhost:6100"}/api/v1/user/users/${userId}/admin`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setUsers((current) => current.map((item) => item._id === userId ? { ...item, role: data.user.role } : item));
+      toast.success(data.message);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to promote user"));
+    } finally {
+      setPromotingId(null);
+    }
+  };
 
   const badgeClass = (role?: string) =>
     role === "admin"
@@ -120,6 +136,16 @@ const AdminUsers = () => {
                       >
                         {isAdmin ? "Admin" : "User"}
                       </span>
+                      {!isAdmin && (
+                        <button
+                          type="button"
+                          className="rounded-full bg-[#6C5CFF] px-3 py-1 text-xs font-semibold text-white transition hover:bg-[#8E82FF] disabled:opacity-50"
+                          disabled={promotingId === u._id}
+                          onClick={() => promoteToAdmin(u._id)}
+                        >
+                          {promotingId === u._id ? "Promoting..." : "Make admin"}
+                        </button>
+                      )}
                     </div>
                   </div>
                 );

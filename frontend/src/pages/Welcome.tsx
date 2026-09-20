@@ -54,6 +54,9 @@ const Welcome = () => {
                 Start listening
                 <FiArrowRight className="transition-transform group-hover:translate-x-1" />
               </Link>
+            <Link to="/requests" className="mt-5 inline-flex text-sm text-white/50 underline-offset-4 transition hover:text-white hover:underline">
+              Request a password reset or song post
+            </Link>
               <Link
                 to="/login"
                 className="rounded-full border border-white/15 px-6 py-3.5 text-sm font-bold text-white transition hover:border-white/40 hover:bg-white/5"

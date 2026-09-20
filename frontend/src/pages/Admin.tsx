@@ -40,7 +40,7 @@ const resetFileInputs = () => {
 };
 
 const server =
-  import.meta.env.VITE_ADMIN_SERVER_URL || "http://13.235.70.183:7000";
+  import.meta.env.VITE_ADMIN_SERVER_URL || "http://localhost:7000";
 
 const userServer =
   import.meta.env.VITE_USER_SERVER_URL || "http://localhost:6100";
