@@ -1,8 +1,9 @@
 interface LogoProps {
   className?: string
+  tile?: boolean
 }
 
-const Logo = ({ className = "relative h-28 w-auto" }: LogoProps) => (
+const Logo = ({ className = "relative h-28 w-auto", tile = false }: LogoProps) => (
   <svg viewBox="24 30 172 200" className={className} aria-hidden="true">
     {/* cat with headphones, tucked behind the cloud */}
     <g transform="translate(-5,10)">
@@ -29,13 +30,13 @@ const Logo = ({ className = "relative h-28 w-auto" }: LogoProps) => (
       <rect x="146" y="76" width="14" height="28" rx="7" fill="#6C5CFF" stroke="#FFFFFF" strokeWidth="3" />
     </g>
     {/* cloud with equalizer bars */}
-    <g fill="#FFFFFF">
+    <g fill={tile ? "#6C5CFF" : "#FFFFFF"}>
       <rect x="40" y="170" width="140" height="52" rx="26" />
       <circle cx="85" cy="172" r="32" />
       <circle cx="130" cy="158" r="42" />
       <circle cx="166" cy="182" r="26" />
     </g>
-    <g fill="#6C5CFF">
+    <g fill={tile ? "#EFECFF" : "#6C5CFF"}>
       <rect x="69" y="168" width="10" height="24" rx="5" />
       <rect x="87" y="158" width="10" height="44" rx="5" />
       <rect x="105" y="150" width="10" height="60" rx="5" />

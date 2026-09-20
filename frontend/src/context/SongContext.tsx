@@ -75,32 +75,55 @@ export const SongProvider = ({ children }: SongContextProps) => {
     setAlbums(data.albums)
   }, [])
 
+  // REFERENCE - previous implementation, removed when switching to
+  // "advance relative to the currently playing song" (kept for reference):
+  //
   // nextSong: advance one song; if we're on the last song, loop back to the first
+  // const nextSong = useCallback(() => {
+  //   if (songs.length === 0) return
+  //   if (index === songs.length - 1) {
+  //     setIndex(0)
+  //     setSelectedSong(songs[0]?.id ?? null)
+  //   } else {
+  //     const next = index + 1
+  //     setIndex(next)
+  //     setSelectedSong(songs[next]?.id ?? null)
+  //   }
+  // }, [index, songs])
+  //
+  // prevSong: step back one song; if we're on the first song, loop around to the last
+  // const prevSong = useCallback(() => {
+  //   if (songs.length === 0) return
+  //   if (index === 0) {
+  //     const last = songs.length - 1
+  //     setIndex(last)
+  //     setSelectedSong(songs[last]?.id ?? null)
+  //   } else {
+  //     const prev = index - 1
+  //     setIndex(prev)
+  //     setSelectedSong(songs[prev]?.id ?? null)
+  //   }
+  // }, [index, songs])
+
+  // nextSong: advance to the song after the currently playing one;
+  // if we're on the last song, loop back to the first
   const nextSong = useCallback(() => {
     if (songs.length === 0) return
-    if (index === songs.length - 1) {
-      setIndex(0)
-      setSelectedSong(songs[0]?.id ?? null)
-    } else {
-      const next = index + 1
-      setIndex(next)
-      setSelectedSong(songs[next]?.id ?? null)
-    }
-  }, [index, songs])
+    const current = song ? songs.findIndex((s) => s.id === song.id) : index
+    const target = current === -1 || current >= songs.length - 1 ? 0 : current + 1
+    setIndex(target)
+    setSelectedSong(songs[target]?.id ?? null)
+  }, [index, song, songs])
 
-  // prevSong: step back one song; if we're on the first song, loop around to the last
+  // prevSong: step back to the song before the currently playing one;
+  // if we're on the first song, loop around to the last
   const prevSong = useCallback(() => {
     if (songs.length === 0) return
-    if (index === 0) {
-      const last = songs.length - 1
-      setIndex(last)
-      setSelectedSong(songs[last]?.id ?? null)
-    } else {
-      const prev = index - 1
-      setIndex(prev)
-      setSelectedSong(songs[prev]?.id ?? null)
-    }
-  }, [index, songs])
+    const current = song ? songs.findIndex((s) => s.id === song.id) : index
+    const target = current <= 0 || current === -1 ? songs.length - 1 : current - 1
+    setIndex(target)
+    setSelectedSong(songs[target]?.id ?? null)
+  }, [index, song, songs])
 
   return (
     <SongContext.Provider value={{ songs, loading, error, selectedSong, setSelectedSong, isPlaying, setIsPlaying, albums, song, albumSong, albumData, fetchSingleSong, fetchAlbumsongs, fetchSongs, fetchAlbums, nextSong, prevSong }}>

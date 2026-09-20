@@ -2,6 +2,7 @@ import AlbumCard from '../components/AlbumCard'
 import SongCard from '../components/SongCard'
 import Layout from '../components/Layout'
 import Loading from '../components/Loading'
+import { ThemeToggle } from '../components/theme'
 import { useSongContext } from '../context/songContext'
 
 const Homepage = () => {
@@ -12,6 +13,9 @@ const Homepage = () => {
   return (
     <div>
       <Layout>
+        <div className="mb-4 flex justify-end">
+          <ThemeToggle />
+        </div>
         <div className='mb-4'>
           <h1 className='text-2xl font-bold my-5'>Trending</h1>
           <div className='flex overflow-auto'>

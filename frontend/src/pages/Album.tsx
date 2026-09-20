@@ -3,6 +3,8 @@ import Layout from "../components/Layout";
 import { useSongContext } from "../context/songContext";
 import { useEffect, useState } from "react";
 import AlbumLoading from "../components/AlbumLoading";
+import Logo from "../components/Logo";
+import { useTheme } from "../components/themeContext";
 import { FaBookmark, FaDownload, FaPause, FaPlay } from "react-icons/fa6";
 import { FiAlignLeft, FiSettings } from "react-icons/fi";
 import { useUserData } from "../context/userContext";
@@ -28,6 +30,8 @@ const AlbumContent = ({ params }: { params: { id?: string } }) => {
   } = useSongContext();
 
   const { isAuth, addToPlaylist } = useUserData();
+
+  const { theme } = useTheme();
 
   const [albumLoading, setAlbumLoading] = useState(true);
 
@@ -74,22 +78,18 @@ const AlbumContent = ({ params }: { params: { id?: string } }) => {
                   )}
 
                   <div className="flex flex-col">
-                    <p>PlayList</p>
+                    <p className="text-[var(--mc-text-muted)]">PlayList</p>
                     <h2 className="text-3xl font-bold mb-4 md:text-5xl">
                       {albumData.title} PlayList
                     </h2>
-                    <h4>{albumData.description}</h4>
+                    <h4 className="text-[var(--mc-text-muted)]">{albumData.description}</h4>
                     <p className="mt-1">
-                      <img
-                        src="/logo.png"
-                        className="inline-block w-6"
-                        alt=""
-                      />
+                      <Logo className="inline-block w-6" tile={theme === "light"} />
                     </p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 sm:grid-cols-4 mt-10 mb-4 pl-2 text-[#a7a7a7]">
+                <div className="grid grid-cols-3 sm:grid-cols-4 mt-10 mb-4 pl-2 text-[var(--mc-text-muted)]">
                   <p>
                     <b className="mr-4">#</b>
                   </p>
@@ -101,16 +101,16 @@ const AlbumContent = ({ params }: { params: { id?: string } }) => {
                   </p>
                 </div>
 
-                <hr />
+                <hr className="border-[var(--mc-border)]" />
                 {albumSong &&
                   albumSong.map((song, index) => {
                     return (
                       <div
-                        className="grid grid-cols-3 sm:grid-cols-4 mt-10 mb-4 pl-2 text-[#a7a7a7] hover:bg-[#ffffff2b] cursor-pointer"
+                        className="grid grid-cols-3 sm:grid-cols-4 mt-10 mb-4 pl-2 text-[var(--mc-text-muted)] hover:bg-[var(--mc-hover)] cursor-pointer"
                         key={index}
                       >
-                        <p className="text-white">
-                          <b className="mr-4 text-[#a7a7a7]">{index + 1}</b>
+                        <p className="text-[var(--mc-text)]">
+                          <b className="mr-4 text-[var(--mc-text-muted)]">{index + 1}</b>
                           <img
                             src={
                               song.thumbnail ? song.thumbnail : "/download.jpeg"
@@ -129,7 +129,7 @@ const AlbumContent = ({ params }: { params: { id?: string } }) => {
                               type="button"
                               aria-label="Save to playlist"
                               title="Save to playlist"
-                              className="text-[15px] text-center text-[#a7a7a7] rounded transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
+                              className="text-[15px] text-center text-[var(--mc-icon)] rounded transition hover:text-[var(--mc-accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
                               onClick={() => addToPlaylist(String(song.id))}
                             >
                               <FaBookmark />
@@ -139,7 +139,7 @@ const AlbumContent = ({ params }: { params: { id?: string } }) => {
                             type="button"
                             aria-label={isPlaying && selectedSong === song.id ? "Pause" : "Play"}
                             title={isPlaying && selectedSong === song.id ? "Pause" : "Play"}
-                            className="text-[15px] text-center text-[#a7a7a7] rounded transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
+                            className="text-[15px] text-center text-[var(--mc-icon)] rounded transition hover:text-[var(--mc-accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
                             onClick={() => {
                               if (isPlaying && selectedSong === song.id) {
                                 setIsPlaying(false);
@@ -159,7 +159,7 @@ const AlbumContent = ({ params }: { params: { id?: string } }) => {
                             type="button"
                             aria-label="Download song"
                             title="Download song"
-                            className="text-[15px] text-center text-[#a7a7a7] rounded transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
+                            className="text-[15px] text-center text-[var(--mc-icon)] rounded transition hover:text-[var(--mc-accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF]"
                             onClick={() => handleDownload(song)}
                           >
                             <FaDownload />

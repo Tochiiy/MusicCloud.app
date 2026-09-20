@@ -46,7 +46,7 @@ const SongCard: FC<SongCardProps> = ({ image, name, description, id }) => {
 
   return (
     <div
-      className="group min-w-[180px] p-2 px-3 rounded cursor-pointer hover:bg-[#17142B]"
+      className="group min-w-[180px] p-2 px-3 rounded cursor-pointer hover:bg-[var(--mc-hover)]"
       onClick={() => { navigate(`/song/${id}`) }}
     >
       <div className="relative">
@@ -56,7 +56,7 @@ const SongCard: FC<SongCardProps> = ({ image, name, description, id }) => {
             type="button"
             aria-label="Play song"
             title="Play song"
-            className="absolute bottom-2 right-26 bg-[#6C5CFF] text-black p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#17142B]"
+            className="absolute bottom-2 right-26 bg-[#6C5CFF] text-black p-3 rounded-full opacity-0 group-hover:opacity-100 mc-touch-visible transition-opacity duration-300 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--mc-bg)]"
             onClick={(e) => { e.stopPropagation(); handlePlay(); }}
           >
             <FaPlay />
@@ -67,7 +67,7 @@ const SongCard: FC<SongCardProps> = ({ image, name, description, id }) => {
               type="button"
               aria-label="Save to playlist"
               title="Save to playlist"
-              className="absolute bottom-2 right-14 bg-[#6C5CFF] text-black p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#17142B]"
+              className="absolute bottom-2 right-14 bg-[#6C5CFF] text-black p-3 rounded-full opacity-0 group-hover:opacity-100 mc-touch-visible transition-opacity duration-300 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--mc-bg)]"
               onClick={(e) => { e.stopPropagation(); saveToPlaylist(); }}
             >
               <FaBookmark />
@@ -78,7 +78,7 @@ const SongCard: FC<SongCardProps> = ({ image, name, description, id }) => {
             type="button"
             aria-label="Download song"
             title="Download song"
-            className="absolute bottom-2 right-2 bg-[#6C5CFF] text-black p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#17142B]"
+            className="absolute bottom-2 right-2 bg-[#6C5CFF] text-black p-3 rounded-full opacity-0 group-hover:opacity-100 mc-touch-visible transition-opacity duration-300 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E82FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--mc-bg)]"
             onClick={(e) => { e.stopPropagation(); handleDownload(); }}
           >
             <FaDownload />
@@ -86,8 +86,8 @@ const SongCard: FC<SongCardProps> = ({ image, name, description, id }) => {
         </div>
       </div>
 
-      <p className="font-bold mt-2 mb-1">#{id} {name.slice(0, 12)}...</p>
-      <p className="text-sm text-slate-200">{description.slice(0, 20)}...</p>
+      <p className="font-bold mt-2 mb-1 text-[var(--mc-text)]">#{id} {name.slice(0, 12)}...</p>
+      <p className="text-sm text-[var(--mc-text-muted)]">{description.slice(0, 20)}...</p>
     </div>
   )
 }

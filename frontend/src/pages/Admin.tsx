@@ -28,6 +28,16 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
+// Clear every native file input's displayed filename after a successful upload,
+// since the inputs are uncontrolled and would otherwise keep showing the old file.
+const resetFileInputs = () => {
+  document
+    .querySelectorAll('input[type="file"]')
+    .forEach((input) => {
+      (input as HTMLInputElement).value = "";
+    });
+};
+
 const server =
   import.meta.env.VITE_ADMIN_SERVER_URL || "http://13.235.70.183:7000";
 
@@ -77,6 +87,7 @@ const Admin = () => {
       setTitle("");
       setDescription("");
       setFile(null);
+      resetFileInputs();
     } catch (error) {
       toast.error(getErrorMessage(error, "An error occurred"));
       setBtnLoading(false);
@@ -110,6 +121,7 @@ const Admin = () => {
       setDescription("");
       setFile(null);
       setAlbum("");
+      resetFileInputs();
     } catch (error) {
       toast.error(getErrorMessage(error, "An error occurred"));
       setBtnLoading(false);
@@ -139,6 +151,7 @@ const Admin = () => {
       fetchSongs();
       setBtnLoading(false);
       setFile(null);
+      resetFileInputs();
     } catch (error) {
       toast.error(getErrorMessage(error, "An error occurred"));
       setBtnLoading(false);

@@ -1,0 +1,81 @@
+/* MusicCloud theme tokens
+   Sidebar + player stay navy in both modes (--mc-frame-*).
+   Everything inside the content area reads the --mc-* tokens below,
+   so text and surfaces switch cleanly between dark and light. */
+
+:root {
+  /* Content area (the part that changes between modes) */
+  --mc-bg: #17142B;
+  --mc-surface: #1E1A38;
+  --mc-text: #FFFFFF;
+  --mc-text-muted: rgba(255, 255, 255, 0.6);
+  --mc-icon: rgba(255, 255, 255, 0.7);
+  --mc-border: rgba(255, 255, 255, 0.1);
+  --mc-hover: rgba(255, 255, 255, 0.08);
+
+  /* Pills / chips */
+  --mc-pill-bg: #FFFFFF;
+  --mc-pill-text: #17142B;
+  --mc-pill-border: transparent;
+  --mc-chip-active-bg: #FFFFFF;
+  --mc-chip-active-text: #17142B;
+
+  /* Brand */
+  --mc-accent: #6C5CFF;
+  --mc-accent-text: #8E82FF; /* accent when used as text/links */
+
+  /* Frame: sidebar + player stay navy in BOTH modes */
+  --mc-frame-bg: #17142B;
+  --mc-frame-text: #FFFFFF;
+  --mc-frame-muted: rgba(255, 255, 255, 0.6);
+
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --mc-bg: #F5F3FF;
+  --mc-surface: #FFFFFF;
+  --mc-text: #17142B;          /* ~16:1 on --mc-bg */
+  --mc-text-muted: #5B5675;    /* ~6:1 on --mc-bg, passes AA */
+  --mc-icon: #5B5675;
+  --mc-border: #E2DEF5;
+  --mc-hover: rgba(23, 20, 43, 0.06);
+
+  --mc-pill-bg: #FFFFFF;
+  --mc-pill-text: #17142B;
+  --mc-pill-border: #D6D0F0;
+  --mc-chip-active-bg: #17142B;
+  --mc-chip-active-text: #FFFFFF;
+
+  --mc-accent-text: #5646E0;   /* darker indigo: #6C5CFF is only ~4:1 on light */
+
+  color-scheme: light;
+}
+
+/* Sliders (progress + volume) use the brand color instead of default blue */
+input[type="range"] {
+  accent-color: var(--mc-accent);
+}
+
+/* Glowing slider thumb for the player (frame = always dark navy) */
+input[type="range"].mc-glow {
+  filter: drop-shadow(0 0 6px rgba(108, 92, 255, 0.65));
+}
+
+/* Show the hover-revealed card controls on touch screens (no hover available) */
+@media (pointer: coarse) {
+  .mc-touch-visible {
+    opacity: 1;
+  }
+}
+
+/* ---- Example usage (Tailwind arbitrary values) ----
+   Page background:     bg-[var(--mc-bg)]
+   Song title:          text-[var(--mc-text)]
+   Description / meta:  text-[var(--mc-text-muted)]
+   Action icons:        text-[var(--mc-icon)] hover:bg-[var(--mc-hover)]
+   Table divider:       border-b border-[var(--mc-border)]
+   Header pill:         bg-[var(--mc-pill-bg)] text-[var(--mc-pill-text)] border border-[var(--mc-pill-border)]
+   Active filter chip:  bg-[var(--mc-chip-active-bg)] text-[var(--mc-chip-active-text)]
+   Sidebar / player:    bg-[var(--mc-frame-bg)] text-[var(--mc-frame-text)]
+*/
