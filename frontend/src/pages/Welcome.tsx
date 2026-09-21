@@ -2,10 +2,15 @@ import { Link } from "react-router-dom";
 import { FiArrowRight, FiHeadphones, FiPlay, FiRadio } from "react-icons/fi";
 import { FaWaveSquare } from "react-icons/fa6";
 
-const FEATURED_IMAGE =
-  "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1400&q=85";
-const SECONDARY_IMAGE =
-  "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=900&q=85";
+const FEATURED_IMAGE = "/PublicRouteImages.jpg";
+const SECONDARY_IMAGE = "/PublicRouteImages.jpg";
+const FALLBACK_IMAGE = "/download.jpeg";
+
+const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
+  const image = event.currentTarget;
+  if (image.src.endsWith(FALLBACK_IMAGE)) return;
+  image.src = FALLBACK_IMAGE;
+};
 
 const Welcome = () => {
   return (
@@ -77,6 +82,7 @@ const Welcome = () => {
                 src={FEATURED_IMAGE}
                 alt="Musician performing with headphones and a microphone"
                 className="h-full w-full object-cover"
+                onError={handleImageError}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0d0c18]/85 via-transparent to-transparent" />
               <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
@@ -92,6 +98,7 @@ const Welcome = () => {
                 src={SECONDARY_IMAGE}
                 alt="Crowd enjoying live music"
                 className="aspect-[4/5] w-full object-cover"
+                onError={handleImageError}
               />
             </div>
             <div className="absolute bottom-8 right-2 flex items-center gap-3 rounded-2xl border border-white/15 bg-[#19172a]/90 px-4 py-3 backdrop-blur sm:right-8">
