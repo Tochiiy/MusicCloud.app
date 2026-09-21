@@ -2,6 +2,16 @@
 
 A full-stack music library built as a small TypeScript microservice system. Users can discover albums and songs, play and download audio, manage playlists and liked songs, while administrators manage catalog media and inspect user activity.
 
+## Live Demo
+
+**[Open MusicCloud.app](https://musiccloudy.vercel.app/welcome)**
+
+Production services:
+
+- [User service health](https://musiccloud-user-service-63te.onrender.com/health)
+- [Song service health](https://musiccloud-song-service.onrender.com/health)
+- [Admin service Swagger docs](https://musiccloud-admin-service.onrender.com/docs)
+
 ## Stack
 
 <p>
